@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MindPath</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="brand">
+        <h1>MindPath</h1>
+        <small id="tagline">Adaptive wellness</small>
+      </header>
+
+      <div id="view-auth" class="card">
+        <div class="auth-tabs">
+          <button type="button" id="tab-login" class="active">Log in</button>
+          <button type="button" id="tab-register">Sign up</button>
+        </div>
+        <div id="panel-login">
+          <label for="login-user">Username</label>
+          <input type="text" id="login-user" autocomplete="username" />
+          <label for="login-pass">Password</label>
+          <input
+            type="password"
+            id="login-pass"
+            autocomplete="current-password"
+          />
+          <button type="button" class="btn" id="btn-login">Log in</button>
+        </div>
+        <div id="panel-register" class="hidden">
+          <label for="reg-user">Username (3+ characters)</label>
+          <input type="text" id="reg-user" autocomplete="username" />
+          <label for="reg-pass">Password (6+ characters)</label>
+          <input type="password" id="reg-pass" autocomplete="new-password" />
+          <button type="button" class="btn" id="btn-register">Create account</button>
+        </div>
+        <p id="auth-error" class="err hidden" role="alert"></p>
+      </div>
+
+      <div id="view-app" class="hidden">
+        <nav class="top-nav" aria-label="Main">
+          <button type="button" data-nav="dashboard" class="active">
+            Dashboard
+          </button>
+          <button type="button" data-nav="checkin">Check-in</button>
+          <button type="button" data-nav="practice">Practice</button>
+          <button type="button" data-nav="profile">Profile</button>
+          <span class="spacer"></span>
+          <span id="nav-user" class="meta"></span>
+          <button type="button" id="btn-logout">Log out</button>
+        </nav>
+
+        <section id="panel-dashboard" class="card" data-panel>
+          <h2>Dashboard</h2>
+          <p class="meta" id="dash-hint">
+            After you save a check-in, a recommendation appears below. You can
+            always pick any exercise in the grid.
+          </p>
+          <div id="dash-recommended" class="hidden">
+            <h3 class="meta" style="letter-spacing: 0.06em">Today’s pick</h3>
+            <button
+              type="button"
+              class="ex-card recommended"
+              id="dash-rec-card"
+            ></button>
+          </div>
+          <h3 class="meta" style="margin-top: 1rem; letter-spacing: 0.06em">
+            All exercises
+          </h3>
+          <div class="exercise-grid" id="dash-grid"></div>
+          <p id="dash-error" class="err hidden"></p>
+        </section>
+
+        <section id="panel-checkin" class="card hidden" data-panel>
+          <h2>Daily check-in</h2>
+          <div class="row two">
+            <div>
+              <label for="target-date">Date</label>
+              <input type="date" id="target-date" />
+            </div>
+          </div>
+          <div style="margin-top: 0.75rem">
+            <label for="journal">Journal (optional)</label>
+            <textarea
+              id="journal"
+              placeholder="What happened today? How’s your body and mood?"
+            ></textarea>
+          </div>
+          <div style="margin-top: 0.75rem">
+            <span class="meta" style="display: block; margin-bottom: 0.45rem"
+              >Mood tags (any)</span
+            >
+            <div
+              class="tags"
+              id="mood-tags"
+              role="group"
+              aria-label="Mood tags"
+            ></div>
+          </div>
+          <div class="row two" style="margin-top: 0.75rem">
+            <div>
+              <label for="sleep">Sleep (hours)</label>
+              <input
+                type="number"
+                id="sleep"
+                min="0"
+                max="24"
+                step="0.5"
+                value="6.5"
+              />
+            </div>
+          </div>
+          <div class="row" style="margin-top: 0.75rem">
+            <div>
+              <label for="energy">Energy 1–10</label>
+              <div class="slider-row">
+                <input type="range" id="energy" min="1" max="10" value="5" />
+                <output id="energy-out">5</output>
+              </div>
+            </div>
+            <div>
+              <label for="stress">Stress 1–10</label>
+              <div class="slider-row">
+                <input type="range" id="stress" min="1" max="10" value="7" />
+                <output id="stress-out">7</output>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn" id="btn-checkin">
+            Save check-in & load plan
+          </button>
+          <p id="checkin-msg" class="meta"></p>
+          <p id="checkin-error" class="err hidden"></p>
+
+          <div id="checkin-plan" class="hidden" style="margin-top: 1rem">
+            <h3 class="meta" style="letter-spacing: 0.06em">
+              Quick read on what you saved
+            </h3>
+            <div class="result-block">
+              <p>
+                Primary <span class="pill" id="out-emotion">—</span> · valence
+                <span id="out-valence">—</span> · arousal
+                <span id="out-arousal">—</span>
+              </p>
+            </div>
+            <div class="result-block">
+              <p>Trend <span class="pill" id="out-trend">—</span></p>
+              <p class="meta" id="out-patterns"></p>
+            </div>
+            <div class="result-block">
+              <p>
+                <strong id="out-intervention-name">—</strong> · ~
+                <span id="out-duration">—</span> min
+              </p>
+              <p id="out-intervention-reason"></p>
+              <ol class="steps" id="out-steps"></ol>
+            </div>
+            <div id="out-risk" class="result-block risk"></div>
+          </div>
+        </section>
+
+        <section id="panel-practice" class="card hidden" data-panel>
+          <h2>Practice</h2>
+          <p class="meta">
+            Pick an exercise and answer the prompts. Saved entries show up
+            under Profile by date.
+          </p>
+          <div class="row two">
+            <div>
+              <label for="practice-pick">Exercise</label>
+              <select id="practice-pick"></select>
+            </div>
+            <div>
+              <label for="practice-date">Date</label>
+              <input type="date" id="practice-date" />
+            </div>
+          </div>
+          <div
+            id="practice-intro"
+            class="meta"
+            style="margin-top: 0.75rem"
+          ></div>
+          <div id="practice-fields" style="margin-top: 1rem"></div>
+          <div class="row two" style="margin-top: 0.75rem">
+            <div>
+              <label for="practice-done">Completed</label>
+              <select id="practice-done">
+                <option value="true">Yes</option>
+                <option value="false">Partial / not yet</option>
+              </select>
+            </div>
+            <div>
+              <label for="practice-help">Helpfulness 1–5</label>
+              <input
+                type="number"
+                id="practice-help"
+                min="1"
+                max="5"
+                value="4"
+              />
+            </div>
+          </div>
+          <label for="practice-notes" style="margin-top: 0.75rem"
+            >Notes (optional)</label
+          >
+          <textarea
+            id="practice-notes"
+            placeholder="Anything else you want to remember…"
+          ></textarea>
+          <button type="button" class="btn" id="btn-practice-submit">
+            Save practice
+          </button>
+          <p id="practice-msg" class="ok hidden"></p>
+          <p id="practice-error" class="err hidden"></p>
+        </section>
+
+        <section id="panel-profile" class="card hidden" data-panel>
+          <h2>Profile & journals</h2>
+          <p id="profile-user" class="meta"></p>
+
+          <h3 class="meta" style="margin-top: 1rem; letter-spacing: 0.06em">
+            Journal entries
+          </h3>
+          <p class="meta">
+            One entry per page from your check-ins. Use prev / next.
+          </p>
+          <div class="journal-page-nav">
+            <button type="button" id="journal-prev">Previous</button>
+            <span id="journal-page-label" class="meta"></span>
+            <button type="button" id="journal-next">Next</button>
+          </div>
+          <p class="meta" id="journal-date"></p>
+          <div id="journal-empty" class="meta hidden">
+            No check-ins yet. Add one under Daily check-in.
+          </div>
+          <div id="journal-content" class="journal-body hidden"></div>
+          <p class="meta" id="journal-meta"></p>
+
+          <h3 class="meta" style="margin-top: 1.5rem; letter-spacing: 0.06em">
+            Practices by date
+          </h3>
+          <div class="row two">
+            <div>
+              <label for="practice-filter-date">Date</label>
+              <input type="date" id="practice-filter-date" />
+            </div>
+          </div>
+          <ul class="practice-list" id="practice-history"></ul>
+          <p id="profile-practice-empty" class="meta hidden">
+            No practices on this date.
+          </p>
+        </section>
+      </div>
+
+      <footer>API: <a href="/docs">/docs</a> · <a href="/">JSON</a></footer>
+    </div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>

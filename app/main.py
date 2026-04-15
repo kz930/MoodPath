@@ -157,7 +157,7 @@ def practice_submit(body: PracticeSubmitBody, uid: str = Depends(get_current_use
 
 @app.get("/timeline")
 def timeline(
-    days: int = Query(default=14, ge=1, le=30),
+    days: int = Query(default=14, ge=1, le=365),
     uid: str = Depends(get_current_user_id),
 ) -> dict:
     user_id = uid
@@ -226,6 +226,24 @@ def daily_plan(target_date: date, uid: str = Depends(get_current_user_id)) -> Da
         user_profile=profile,
     )
     return run_daily_plan_pipeline(state)
+
+
+@app.get("/me/checkin", response_model=JournalEntryOut)
+def me_checkin(
+    checkin_date: date = Query(..., alias="date"),
+    uid: str = Depends(get_current_user_id),
+) -> JournalEntryOut:
+    c = store.get_checkin(uid, checkin_date)
+    if not c:
+        raise HTTPException(status_code=404, detail="No checkin for date")
+    return JournalEntryOut(
+        date=checkin_date,
+        journal_text=c.journal_text,
+        mood_tags=c.mood_tags,
+        sleep_hours=c.sleep_hours,
+        energy_score=c.energy_score,
+        stress_score=c.stress_score,
+    )
 
 
 @app.get("/me/journals", response_model=JournalPageResponse)

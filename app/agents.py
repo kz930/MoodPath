@@ -151,9 +151,9 @@ def run_intervention_agent(emotion: EmotionOutput, pattern: PatternOutput, profi
             "Pick one and set a tiny follow-up for tomorrow",
         ],
         "best_possible_self": [
-            "Picture a good-enough day a few months out",
-            "Note two habits that would support that day",
-            "Choose one small step for today",
+            "About 5 min: write your life at 109 if everything went as well as possible (no self-editing)",
+            "About 5 min: that 109-year-old self sits with you—what do they say?",
+            "About 2 min: list action points; focus on your top three day to day",
         ],
         "cognitive_reframing": [
             "Write the worry thought verbatim",

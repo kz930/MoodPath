@@ -75,6 +75,12 @@ def test_auth_flow_and_daily_plan() -> None:
     j = r3.json()
     assert j["total"] >= 1
 
+    r_ck = client.get(f"/me/checkin?date={d.isoformat()}", headers=headers)
+    assert r_ck.status_code == 200
+    ck = r_ck.json()
+    assert ck["journal_text"] == payload["journal_text"]
+    assert ck["stress_score"] == 8
+
     sub = {
         "date": d.isoformat(),
         "intervention_type": "gratitude",

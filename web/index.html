@@ -2,18 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#FCE4EC" />
     <title>MindPath</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <div class="wrap">
-      <header class="brand">
-        <h1>MindPath</h1>
-        <small id="tagline">Adaptive wellness</small>
-      </header>
-
-      <div id="view-auth" class="card">
+    <div id="view-auth" class="auth-screen">
+      <div class="auth-card">
+        <h1 class="logo-title">MindPath</h1>
+        <p class="logo-sub">Adaptive wellness</p>
         <div class="auth-tabs">
           <button type="button" id="tab-login" class="active">Log in</button>
           <button type="button" id="tab-register">Sign up</button>
@@ -22,240 +20,603 @@
           <label for="login-user">Username</label>
           <input type="text" id="login-user" autocomplete="username" />
           <label for="login-pass">Password</label>
-          <input
-            type="password"
-            id="login-pass"
-            autocomplete="current-password"
-          />
-          <button type="button" class="btn" id="btn-login">Log in</button>
+          <input type="password" id="login-pass" autocomplete="current-password" />
+          <button type="button" class="btn btn-primary" id="btn-login">Log in</button>
         </div>
         <div id="panel-register" class="hidden">
           <label for="reg-user">Username (3+ characters)</label>
           <input type="text" id="reg-user" autocomplete="username" />
           <label for="reg-pass">Password (6+ characters)</label>
           <input type="password" id="reg-pass" autocomplete="new-password" />
-          <button type="button" class="btn" id="btn-register">Create account</button>
+          <button type="button" class="btn btn-primary" id="btn-register">Create account</button>
         </div>
         <p id="auth-error" class="err hidden" role="alert"></p>
       </div>
-
-      <div id="view-app" class="hidden">
-        <nav class="top-nav" aria-label="Main">
-          <button type="button" data-nav="dashboard" class="active">
-            Dashboard
-          </button>
-          <button type="button" data-nav="checkin">Check-in</button>
-          <button type="button" data-nav="practice">Practice</button>
-          <button type="button" data-nav="profile">Profile</button>
-          <span class="spacer"></span>
-          <span id="nav-user" class="meta"></span>
-          <button type="button" id="btn-logout">Log out</button>
-        </nav>
-
-        <section id="panel-dashboard" class="card" data-panel>
-          <h2>Dashboard</h2>
-          <p class="meta" id="dash-hint">
-            After you save a check-in, a recommendation appears below. You can
-            always pick any exercise in the grid.
-          </p>
-          <div id="dash-recommended" class="hidden">
-            <h3 class="meta" style="letter-spacing: 0.06em">Today’s pick</h3>
-            <button
-              type="button"
-              class="ex-card recommended"
-              id="dash-rec-card"
-            ></button>
-          </div>
-          <h3 class="meta" style="margin-top: 1rem; letter-spacing: 0.06em">
-            All exercises
-          </h3>
-          <div class="exercise-grid" id="dash-grid"></div>
-          <p id="dash-error" class="err hidden"></p>
-        </section>
-
-        <section id="panel-checkin" class="card hidden" data-panel>
-          <h2>Daily check-in</h2>
-          <div class="row two">
-            <div>
-              <label for="target-date">Date</label>
-              <input type="date" id="target-date" />
-            </div>
-          </div>
-          <div style="margin-top: 0.75rem">
-            <label for="journal">Journal (optional)</label>
-            <textarea
-              id="journal"
-              placeholder="What happened today? How’s your body and mood?"
-            ></textarea>
-          </div>
-          <div style="margin-top: 0.75rem">
-            <span class="meta" style="display: block; margin-bottom: 0.45rem"
-              >Mood tags (any)</span
-            >
-            <div
-              class="tags"
-              id="mood-tags"
-              role="group"
-              aria-label="Mood tags"
-            ></div>
-          </div>
-          <div class="row two" style="margin-top: 0.75rem">
-            <div>
-              <label for="sleep">Sleep (hours)</label>
-              <input
-                type="number"
-                id="sleep"
-                min="0"
-                max="24"
-                step="0.5"
-                value="6.5"
-              />
-            </div>
-          </div>
-          <div class="row" style="margin-top: 0.75rem">
-            <div>
-              <label for="energy">Energy 1–10</label>
-              <div class="slider-row">
-                <input type="range" id="energy" min="1" max="10" value="5" />
-                <output id="energy-out">5</output>
-              </div>
-            </div>
-            <div>
-              <label for="stress">Stress 1–10</label>
-              <div class="slider-row">
-                <input type="range" id="stress" min="1" max="10" value="7" />
-                <output id="stress-out">7</output>
-              </div>
-            </div>
-          </div>
-          <button type="button" class="btn" id="btn-checkin">
-            Save check-in & load plan
-          </button>
-          <p id="checkin-msg" class="meta"></p>
-          <p id="checkin-error" class="err hidden"></p>
-
-          <div id="checkin-plan" class="hidden" style="margin-top: 1rem">
-            <h3 class="meta" style="letter-spacing: 0.06em">
-              Quick read on what you saved
-            </h3>
-            <div class="result-block">
-              <p>
-                Primary <span class="pill" id="out-emotion">—</span> · valence
-                <span id="out-valence">—</span> · arousal
-                <span id="out-arousal">—</span>
-              </p>
-            </div>
-            <div class="result-block">
-              <p>Trend <span class="pill" id="out-trend">—</span></p>
-              <p class="meta" id="out-patterns"></p>
-            </div>
-            <div class="result-block">
-              <p>
-                <strong id="out-intervention-name">—</strong> · ~
-                <span id="out-duration">—</span> min
-              </p>
-              <p id="out-intervention-reason"></p>
-              <ol class="steps" id="out-steps"></ol>
-            </div>
-            <div id="out-risk" class="result-block risk"></div>
-          </div>
-        </section>
-
-        <section id="panel-practice" class="card hidden" data-panel>
-          <h2>Practice</h2>
-          <p class="meta">
-            Pick an exercise and answer the prompts. Saved entries show up
-            under Profile by date.
-          </p>
-          <div class="row two">
-            <div>
-              <label for="practice-pick">Exercise</label>
-              <select id="practice-pick"></select>
-            </div>
-            <div>
-              <label for="practice-date">Date</label>
-              <input type="date" id="practice-date" />
-            </div>
-          </div>
-          <div
-            id="practice-intro"
-            class="meta"
-            style="margin-top: 0.75rem"
-          ></div>
-          <div id="practice-fields" style="margin-top: 1rem"></div>
-          <div class="row two" style="margin-top: 0.75rem">
-            <div>
-              <label for="practice-done">Completed</label>
-              <select id="practice-done">
-                <option value="true">Yes</option>
-                <option value="false">Partial / not yet</option>
-              </select>
-            </div>
-            <div>
-              <label for="practice-help">Helpfulness 1–5</label>
-              <input
-                type="number"
-                id="practice-help"
-                min="1"
-                max="5"
-                value="4"
-              />
-            </div>
-          </div>
-          <label for="practice-notes" style="margin-top: 0.75rem"
-            >Notes (optional)</label
-          >
-          <textarea
-            id="practice-notes"
-            placeholder="Anything else you want to remember…"
-          ></textarea>
-          <button type="button" class="btn" id="btn-practice-submit">
-            Save practice
-          </button>
-          <p id="practice-msg" class="ok hidden"></p>
-          <p id="practice-error" class="err hidden"></p>
-        </section>
-
-        <section id="panel-profile" class="card hidden" data-panel>
-          <h2>Profile & journals</h2>
-          <p id="profile-user" class="meta"></p>
-
-          <h3 class="meta" style="margin-top: 1rem; letter-spacing: 0.06em">
-            Journal entries
-          </h3>
-          <p class="meta">
-            One entry per page from your check-ins. Use prev / next.
-          </p>
-          <div class="journal-page-nav">
-            <button type="button" id="journal-prev">Previous</button>
-            <span id="journal-page-label" class="meta"></span>
-            <button type="button" id="journal-next">Next</button>
-          </div>
-          <p class="meta" id="journal-date"></p>
-          <div id="journal-empty" class="meta hidden">
-            No check-ins yet. Add one under Daily check-in.
-          </div>
-          <div id="journal-content" class="journal-body hidden"></div>
-          <p class="meta" id="journal-meta"></p>
-
-          <h3 class="meta" style="margin-top: 1.5rem; letter-spacing: 0.06em">
-            Practices by date
-          </h3>
-          <div class="row two">
-            <div>
-              <label for="practice-filter-date">Date</label>
-              <input type="date" id="practice-filter-date" />
-            </div>
-          </div>
-          <ul class="practice-list" id="practice-history"></ul>
-          <p id="profile-practice-empty" class="meta hidden">
-            No practices on this date.
-          </p>
-        </section>
-      </div>
-
-      <footer>API: <a href="/docs">/docs</a> · <a href="/">JSON</a></footer>
     </div>
+
+    <div id="view-app" class="hidden">
+      <div class="phone-shell">
+        <main class="app-scroll">
+          <section id="screen-home" class="screen is-active" data-screen="home">
+            <header class="screen-header">
+              <div>
+                <p class="greeting" id="home-greeting">Good day</p>
+                <p class="greeting-name" id="home-name">friend</p>
+              </div>
+            </header>
+
+            <div class="hero-card">
+              <div
+                class="hero-bg"
+                style="
+                  background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80');
+                "
+              ></div>
+              <div class="hero-inner">
+                <p class="hero-label">Today’s focus</p>
+                <p class="hero-title">Check in with yourself</p>
+                <button type="button" class="btn btn-hero" id="btn-start-checkin">
+                  Start check-in
+                </button>
+              </div>
+            </div>
+
+            <h2 class="section-title">Today’s snapshot</h2>
+            <div class="snapshot-row">
+              <div class="snapshot-pill">
+                <span class="snap-label">Sleep</span>
+                <span class="snap-value" id="home-sleep">—</span>
+              </div>
+              <div class="snapshot-pill">
+                <span class="snap-label">Energy</span>
+                <span class="snap-value" id="home-energy">—</span>
+              </div>
+              <div class="snapshot-pill">
+                <span class="snap-label">Stress</span>
+                <span class="snap-value" id="home-stress">—</span>
+              </div>
+            </div>
+
+            <div class="insights-card">
+              <h3 class="insights-title">Why this plan?</h3>
+              <ul class="insights-list" id="home-insights">
+                <li>Save a check-in to see gentle insights here.</li>
+              </ul>
+            </div>
+
+            <div class="habits-section" id="habits-section">
+              <h2 class="section-title">Adaptive Habits</h2>
+              <p class="habits-subtitle">Small actions shaped by your patterns</p>
+
+              <article
+                class="habit-card habit-card--suggested"
+                aria-labelledby="habit-suggested-title"
+              >
+                <p class="habit-suggested-label">Suggested for you</p>
+                <h3 class="habit-title" id="habit-suggested-title">Wind-down routine</h3>
+                <p class="habit-subline">10 min before sleep</p>
+                <p class="habit-explainer">
+                  Suggested because your stress tends to rise at night and sleep affects your mood.
+                </p>
+                <button type="button" class="btn btn-primary habit-cta" id="btn-habit-try-winddown">
+                  Open instructions &amp; video
+                </button>
+              </article>
+
+              <div class="habit-tracker-head">
+                <p class="habits-tracker-label tight">Your habits</p>
+                <div class="habit-range-toggle" id="habit-range-toggle" role="tablist" aria-label="Time range">
+                  <button type="button" class="filter-tab active" data-habit-range="7">Week</button>
+                  <button type="button" class="filter-tab" data-habit-range="30">Month</button>
+                </div>
+              </div>
+              <div id="habits-tracker-list"></div>
+
+              <div class="habits-toolbar">
+                <button type="button" class="btn-habits-add" id="btn-habits-add">+ Add habit</button>
+                <button type="button" class="btn-habits-manage" id="btn-habits-manage">Manage habits</button>
+              </div>
+
+              <div
+                id="n30-challenge-root"
+                class="n30-challenge-section"
+                aria-labelledby="n30-challenge-heading"
+              ></div>
+              <p id="habits-add-hint" class="habits-add-hint hidden" role="status"></p>
+            </div>
+          </section>
+
+          <section id="screen-checkin" class="screen" data-screen="checkin">
+            <header class="screen-header tight">
+              <button type="button" class="back-link hidden" id="checkin-back" aria-label="Back">
+                ←
+              </button>
+              <h2 class="screen-title">Check-in</h2>
+            </header>
+
+            <div class="prompt-block chill-music-row">
+              <div class="chill-music-header">
+                <span class="chill-music-label">Chill music</span>
+                <button type="button" class="chill-toggle-btn" id="btn-checkin-chill-toggle" aria-pressed="true">
+                  On
+                </button>
+              </div>
+              <p class="meta chill-music-autoplay-hint">
+                When On, the player loads below — tap play on the video if your browser blocks autoplay.
+              </p>
+              <div id="checkin-chill-player-wrap" class="checkin-chill-player-wrap hidden">
+                <iframe
+                  id="checkin-chill-embed"
+                  class="checkin-chill-iframe"
+                  title="Chill playlist"
+                  width="560"
+                  height="100"
+                  src=""
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            </div>
+
+            <div class="prompt-block">
+              <p class="prompt-label">How are you feeling right now?</p>
+              <div class="mood-emoji-row" id="mood-emoji-row" role="group" aria-label="Mood"></div>
+            </div>
+
+            <div class="prompt-block">
+              <p class="prompt-label">What’s been on your mind lately?</p>
+              <p class="prompt-callout" id="journal-prompt">What do you need to be kinder to yourself about today?</p>
+              <textarea
+                id="journal"
+                class="journal-area"
+                rows="5"
+                placeholder="Write anything…"
+              ></textarea>
+            </div>
+
+            <div class="prompt-block checkin-metrics">
+              <p class="prompt-section-title">Today in numbers</p>
+              <label for="checkin-date" class="slider-label">Check-in date</label>
+              <input type="date" id="checkin-date" class="input-full" />
+
+              <div class="slider-block">
+                <label class="slider-label">Sleep (hours)</label>
+                <input type="number" id="sleep" min="0" max="24" step="0.5" value="6.5" class="input-inline" />
+              </div>
+              <div class="slider-block">
+                <div class="slider-label-row">
+                  <label>Energy</label>
+                  <output id="energy-out" for="energy">5</output>
+                </div>
+                <input type="range" id="energy" min="1" max="10" value="5" class="range-soft" />
+              </div>
+              <div class="slider-block">
+                <div class="slider-label-row">
+                  <label>Stress</label>
+                  <output id="stress-out" for="stress">7</output>
+                </div>
+                <input type="range" id="stress" min="1" max="10" value="7" class="range-soft" />
+              </div>
+            </div>
+
+            <p id="checkin-msg" class="ok soft"></p>
+            <p id="checkin-error" class="err hidden"></p>
+            <button type="button" class="btn btn-primary btn-block" id="btn-checkin">Get my plan</button>
+
+            <div id="mood-tags" class="hidden" aria-hidden="true"></div>
+          </section>
+
+          <section id="screen-plan" class="screen" data-screen="plan">
+            <h2 class="screen-title">AI plan</h2>
+            <p class="screen-lede" id="dash-hint">
+              Your check-in shapes a suggestion below. Other exercises scroll sideways.
+            </p>
+
+            <div id="dash-recommended" class="plan-rec-block hidden">
+              <p class="plan-rec-meta" id="plan-rec-meta">About 8 minutes</p>
+              <h3 class="plan-rec-title" id="plan-rec-title">Exercise</h3>
+              <p class="plan-rec-desc" id="plan-rec-desc"></p>
+              <button type="button" class="btn btn-primary" id="btn-start-session">Start session</button>
+            </div>
+
+            <h3 class="subsection-title">Exercise library</h3>
+            <p class="meta plan-dash-lede">By type — tap to open in Practice.</p>
+            <div id="plan-dashboard" class="plan-dashboard"></div>
+
+            <div class="insights-card">
+              <h3 class="insights-title">Why this?</h3>
+              <p class="meta" id="plan-why-text"></p>
+              <div id="analysis-block" class="hidden">
+                <p class="meta">
+                  Mood signal <span class="pill" id="out-emotion">—</span> · trend
+                  <span class="pill" id="out-trend">—</span>
+                </p>
+                <p class="meta" id="out-patterns"></p>
+                <ol class="steps compact" id="out-steps"></ol>
+                <div id="out-risk" class="risk compact"></div>
+              </div>
+            </div>
+            <p id="dash-error" class="err hidden"></p>
+
+            <div id="dash-grid" class="hidden"></div>
+            <button type="button" class="ex-card hidden" id="dash-rec-card"></button>
+          </section>
+
+          <section id="screen-history" class="screen" data-screen="history">
+            <h2 class="screen-title">History</h2>
+            <div class="filter-tabs" id="history-tabs">
+              <button type="button" class="filter-tab active" data-days="7">7 days</button>
+              <button type="button" class="filter-tab" data-days="30">30 days</button>
+              <button type="button" class="filter-tab" data-days="365">All</button>
+            </div>
+            <div class="chart-card">
+              <p class="chart-label">Stress trend</p>
+              <svg id="history-chart" class="mood-chart" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+            </div>
+            <div class="insight-cards" id="history-insights"></div>
+            <div class="insights-card">
+              <h3 class="insights-title">Habit tracker</h3>
+              <p class="meta">Same habits as Home — switch Week or Month there.</p>
+              <div id="history-habits-embed"></div>
+            </div>
+          </section>
+
+          <section id="screen-more" class="screen screen-more" data-screen="more">
+            <h2 class="screen-title">More</h2>
+
+            <div class="more-accordion" role="navigation" aria-label="More sections">
+              <details class="more-details" open>
+                <summary class="more-details-summary">Interesting assessments</summary>
+                <div class="more-details-body">
+                  <p class="more-menu-lede tight-top">
+                    Same exercises as under “Interesting assessments” on AI plan — open them here anytime.
+                  </p>
+                  <div class="more-menu-actions">
+                    <button type="button" class="btn btn-outline btn-block more-menu-btn" id="btn-more-baseline">
+                      Baseline Assessment of Well-Being
+                    </button>
+                    <button type="button" class="btn btn-outline btn-block more-menu-btn" id="btn-more-hope">
+                      Learning about your own optimistic style
+                    </button>
+                  </div>
+                </div>
+              </details>
+
+              <details class="more-details">
+                <summary class="more-details-summary">History</summary>
+                <div class="more-details-body">
+                  <p class="more-menu-lede tight-top">Stress trend, journals, and habit tracker.</p>
+                  <button type="button" class="btn btn-outline btn-block more-menu-btn" id="btn-more-history">
+                    Open stress trend &amp; journal history
+                  </button>
+                </div>
+              </details>
+
+              <details class="more-details">
+                <summary class="more-details-summary">Help</summary>
+                <div class="more-details-body">
+                  <p class="screen-lede tight tight-top">Crisis &amp; grounding</p>
+                  <div class="support-card support-card--in-more">
+                    <div class="support-illus" aria-hidden="true">🌿</div>
+                    <p class="support-title">It’s okay to take a break</p>
+                    <p class="support-text">If things feel heavy, small steps and human connection help.</p>
+                    <p class="mental-wellness-heading">Mental wellness exercise</p>
+                    <div class="grounding-pick-grid" role="group" aria-label="Mental wellness exercise">
+                      <div class="grounding-pick-card">
+                        <p class="grounding-pick-title">Breathing &amp; grounding</p>
+                        <p class="grounding-pick-desc">Settle the body with breath and presence.</p>
+                        <button type="button" class="btn btn-primary btn-block" id="btn-open-breathing">
+                          Open session
+                        </button>
+                      </div>
+                      <div class="grounding-pick-card">
+                        <p class="grounding-pick-title">Meditation</p>
+                        <p class="grounding-pick-desc">Guided calm practice — separate from breathing drills.</p>
+                        <button type="button" class="btn btn-primary btn-block" id="btn-open-meditation">
+                          Open session
+                        </button>
+                      </div>
+                    </div>
+                    <ul class="support-links support-links--crisis-tight">
+                      <li><a href="tel:988" class="support-a">988 Suicide &amp; Crisis Lifeline (US)</a></li>
+                      <li>
+                        <a
+                          href="https://www.crisistextline.org/"
+                          class="support-a"
+                          target="_blank"
+                          rel="noopener"
+                          >Crisis Text Line</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </details>
+
+              <details class="more-details">
+                <summary class="more-details-summary">Chill music</summary>
+                <div class="more-details-body">
+                  <p class="more-menu-lede tight-top">
+                    Chill listening is this playlist only: <strong>Lemon-Bright Lo-fi Jazz-hop</strong> on YouTube (embed
+                    below or open in the app).
+                  </p>
+                  <p class="more-field-label">Lemon-Bright Lo-fi Jazz-hop (YouTube)</p>
+                  <div class="more-youtube-wrap more-youtube-wrap--light">
+                    <iframe
+                      title="Lemon-Bright Lo-fi Jazz-hop — YouTube playlist"
+                      class="more-youtube-iframe"
+                      width="560"
+                      height="180"
+                      loading="lazy"
+                      src="https://www.youtube.com/embed/j6UN0SH1rek?list=RDj6UN0SH1rek&amp;rel=0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowfullscreen
+                    ></iframe>
+                  </div>
+                  <p class="more-youtube-links">
+                    <a
+                      href="https://www.youtube.com/watch?v=j6UN0SH1rek&amp;list=RDj6UN0SH1rek&amp;start_radio=1"
+                      class="support-a"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >Open Lemon-Bright Lo-fi Jazz-hop on YouTube</a>
+                  </p>
+                  <p class="meta more-youtube-hint">
+                    Citation for this mix appears under <strong>Citations &amp; credits</strong>.
+                  </p>
+                </div>
+              </details>
+
+              <details class="more-details">
+                <summary class="more-details-summary">Account</summary>
+                <div class="more-details-body">
+                  <p class="more-menu-lede tight-top">Sign out on this device. Your entries stay on the server until you delete them.</p>
+                  <button type="button" class="btn btn-outline btn-block" id="btn-more-logout">
+                    Log out
+                  </button>
+                </div>
+              </details>
+
+              <details class="more-details">
+                <summary class="more-details-summary">Citations &amp; credits</summary>
+                <div class="more-details-body more-citations-body">
+                  <p>
+                    The ideas and many exercises in this app draw on <strong>positive psychology</strong> coursework
+                    and materials associated with <strong>Dr.&nbsp;Pressman</strong> at the
+                    <strong>University of California, Irvine (UCI)</strong>
+                    <strong>Positive Psychology</strong> class. MindPath is an independent student project and is not an
+                    official UCI product.
+                  </p>
+                  <p>
+                    <strong>Featured chill playlist (default):</strong>
+                    <a
+                      href="https://www.youtube.com/watch?v=j6UN0SH1rek&amp;list=RDj6UN0SH1rek&amp;start_radio=1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >Lemon-Bright Lo-fi Jazz-hop on YouTube</a>
+                    — listen in the Chill music section above.
+                  </p>
+                  <p class="meta citations-note">
+                    Chill audio is streamed from YouTube; attribution follows the video and channel shown there.
+                  </p>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <section id="screen-profile" class="screen" data-screen="profile">
+            <h2 class="screen-title">You</h2>
+            <p id="profile-user" class="profile-line"></p>
+
+            <h3 class="subsection-title">Practice</h3>
+            <div class="practice-form-stack">
+              <p class="meta practice-form-lede" id="practice-mode-hint">
+                Pick an exercise. Writing prompts appear when they apply.
+              </p>
+              <div class="practice-form-field">
+                <label for="practice-pick">Exercise</label>
+                <select id="practice-pick" class="select-full"></select>
+              </div>
+              <div class="practice-form-field">
+                <label for="practice-date">Date</label>
+                <input type="date" id="practice-date" class="input-full" />
+              </div>
+              <div id="practice-intro" class="practice-intro"></div>
+              <div id="practice-fields" class="practice-fields-host"></div>
+              <div class="row-two practice-form-field">
+                <div>
+                  <label for="practice-done">Done</label>
+                  <select id="practice-done">
+                    <option value="true">Yes</option>
+                    <option value="false">Partial</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="practice-help">Helpful 1–5</label>
+                  <input type="number" id="practice-help" min="1" max="5" value="4" class="input-inline" />
+                </div>
+              </div>
+              <div class="practice-form-field">
+                <label for="practice-notes">Notes</label>
+                <textarea id="practice-notes" rows="2" class="journal-area" placeholder="Optional…"></textarea>
+              </div>
+              <button type="button" class="btn btn-primary btn-block" id="btn-practice-submit">Save practice</button>
+            </div>
+            <p id="practice-msg" class="ok soft hidden"></p>
+            <p id="practice-error" class="err hidden"></p>
+
+            <h3 class="subsection-title">Journal log</h3>
+            <div class="journal-page-nav">
+              <button type="button" class="btn-ghost" id="journal-prev">Prev</button>
+              <span id="journal-page-label" class="meta"></span>
+              <button type="button" class="btn-ghost" id="journal-next">Next</button>
+            </div>
+            <p class="meta" id="journal-date"></p>
+            <button type="button" class="btn btn-outline btn-block hidden" id="btn-edit-checkin">
+              Edit this check-in
+            </button>
+            <div id="journal-empty" class="meta soft hidden">No entries yet.</div>
+            <div id="journal-content" class="journal-body hidden"></div>
+            <p class="meta" id="journal-meta"></p>
+
+            <h3 class="subsection-title">Practices by date</h3>
+            <input type="date" id="practice-filter-date" class="input-full" />
+            <ul class="practice-list" id="practice-history"></ul>
+            <p id="profile-practice-empty" class="meta hidden">Nothing on this date.</p>
+
+            <p class="footer-api"><a href="/docs">API docs</a> · <a href="/">JSON</a></p>
+          </section>
+        </main>
+
+        <section id="screen-session" class="screen screen-session" aria-hidden="true">
+          <div class="session-scroll">
+            <header class="screen-header tight">
+              <button type="button" class="back-link" id="btn-session-close">←</button>
+              <h2 class="screen-title" id="session-title">Session</h2>
+            </header>
+
+            <div id="session-body-guided" class="session-body hidden">
+              <div class="session-video-wrap">
+                <iframe
+                  id="session-video-guided"
+                  title="Guided session (video)"
+                  src=""
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                ></iframe>
+              </div>
+              <div id="session-youtube-audio-wrap" class="session-youtube-audio-wrap hidden" aria-hidden="true">
+                <iframe
+                  id="session-youtube-audio"
+                  title="Background music"
+                  src=""
+                  allow="autoplay; encrypted-media"
+                ></iframe>
+              </div>
+              <div class="breath-orb-wrap">
+                <div class="breath-orb" id="breath-orb" aria-hidden="true"></div>
+              </div>
+              <p class="session-phase" id="session-phase"></p>
+              <p class="session-timer-display" id="session-timer-display">2:00</p>
+              <button type="button" class="btn btn-primary btn-block" id="btn-session-timer-toggle">
+                Start timer
+              </button>
+              <label class="slider-label" for="session-music-mode">Sound during session</label>
+              <select id="session-music-mode" class="select-full">
+                <option value="youtube" selected>Chill playlist</option>
+                <option value="off">Off</option>
+              </select>
+              <p class="music-credit" id="session-music-note"></p>
+              <div id="session-after-breathing" class="session-after hidden">
+                <label for="session-reflection">Afterward (optional)</label>
+                <textarea
+                  id="session-reflection"
+                  class="journal-area"
+                  rows="3"
+                  placeholder="Anything you want to remember — one line is enough."
+                ></textarea>
+                <button type="button" class="btn btn-primary btn-block" id="btn-session-save-breathing">
+                  Save session
+                </button>
+              </div>
+            </div>
+
+            <div id="session-body-winddown" class="session-body hidden">
+              <p class="session-lede">A simple wind-down you can try tonight.</p>
+              <ol class="winddown-steps">
+                <li>Dim lights; set the phone away from the bed.</li>
+                <li>Take five slow breaths — make the exhale longer than the inhale.</li>
+                <li>One kind line: “I did enough today.”</li>
+              </ol>
+              <div class="session-video-wrap">
+                <iframe
+                  id="session-video-winddown"
+                  title="Relaxing evening (video)"
+                  src="https://www.youtube.com/embed/aNXKjGFUlMs"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </div>
+              <button type="button" class="btn btn-primary btn-block" id="btn-winddown-finish">
+                I’m done for now
+              </button>
+              <div id="session-after-winddown" class="session-after hidden">
+                <label for="winddown-reflection">Note (optional)</label>
+                <textarea
+                  id="winddown-reflection"
+                  class="journal-area"
+                  rows="2"
+                  placeholder="Optional — how you feel, one line."
+                ></textarea>
+                <button type="button" class="btn btn-outline btn-block" id="btn-winddown-save-note">
+                  Save note on this device
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div id="habit-dashboard" class="habit-dashboard hidden" aria-hidden="true">
+          <div class="habit-dashboard-backdrop" id="habit-dashboard-backdrop"></div>
+          <div class="habit-dashboard-panel" role="dialog" aria-labelledby="habit-dashboard-title">
+            <h3 id="habit-dashboard-title" class="habit-dashboard-title">Add &amp; manage habits</h3>
+            <p class="meta habit-dashboard-lede">
+              Choose course-linked habits, quick ideas, or a custom name. Only what you add appears on Home.
+            </p>
+
+            <div id="habit-dash-your-list-wrap" class="habit-dash-your-list-wrap hidden">
+              <p class="habit-dash-section-label">Your habits</p>
+              <ul id="habit-dash-your-list" class="habit-manage-list"></ul>
+            </div>
+
+            <p class="habit-dash-section-label">Course habits</p>
+            <div id="habit-dash-presets" class="habit-dash-chips"></div>
+
+            <p class="habit-dash-section-label">Quick ideas</p>
+            <div id="habit-dash-suggested" class="habit-dash-chips"></div>
+
+            <label for="habit-dash-custom" class="habit-dash-section-label">Custom habit</label>
+            <input
+              type="text"
+              id="habit-dash-custom"
+              class="input-full"
+              maxlength="80"
+              placeholder="e.g. Phone away by 11pm"
+              autocomplete="off"
+            />
+            <div class="habit-dashboard-actions">
+              <button type="button" class="btn btn-primary" id="btn-habit-dash-add-custom">
+                Add custom habit
+              </button>
+              <button type="button" class="btn btn-ghost" id="btn-habit-dashboard-close">Done</button>
+            </div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav" aria-label="Main">
+          <button type="button" class="nav-item active" data-tab="home">
+            <span class="nav-ic">⌂</span>
+            <span>Home</span>
+          </button>
+          <button type="button" class="nav-item" data-tab="checkin">
+            <span class="nav-ic">✎</span>
+            <span>Check-in</span>
+          </button>
+          <button type="button" class="nav-item" data-tab="plan">
+            <span class="nav-ic">✦</span>
+            <span>AI plan</span>
+          </button>
+          <button type="button" class="nav-item" data-tab="profile">
+            <span class="nav-ic">○</span>
+            <span>You</span>
+          </button>
+          <button type="button" class="nav-item" data-tab="more">
+            <span class="nav-ic">⋯</span>
+            <span>More</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
     <script src="/static/app.js" defer></script>
   </body>
 </html>

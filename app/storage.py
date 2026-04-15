@@ -29,6 +29,14 @@ class InMemoryStore:
         self.profiles: dict[str, UserProfile] = {}
         self.users_by_id: dict[str, UserRecord] = {}
         self.username_to_id: dict[str, str] = {}
+        from .persist import load_into_store
+
+        load_into_store(self)
+
+    def _persist(self) -> None:
+        from .persist import save_store
+
+        save_store(self)
 
     def register_user(self, user_id: str, username: str, password_hash: str) -> UserRecord:
         key = username.strip().lower()
@@ -37,6 +45,7 @@ class InMemoryStore:
         rec = UserRecord(user_id=user_id, username=username.strip(), password_hash=password_hash)
         self.users_by_id[user_id] = rec
         self.username_to_id[key] = user_id
+        self._persist()
         return rec
 
     def get_user(self, user_id: str) -> UserRecord | None:
@@ -50,6 +59,7 @@ class InMemoryStore:
 
     def save_checkin(self, user_id: str, target_date: date, checkin: CheckinInput) -> None:
         self.checkins[user_id][target_date] = checkin
+        self._persist()
 
     def get_checkin(self, user_id: str, target_date: date) -> CheckinInput | None:
         return self.checkins[user_id].get(target_date)
@@ -80,6 +90,7 @@ class InMemoryStore:
 
     def save_reflection(self, payload: ReflectionInput) -> None:
         self.reflections[payload.user_id].append(payload)
+        self._persist()
 
     def list_reflections(self, user_id: str) -> list[ReflectionInput]:
         return self.reflections[user_id]
@@ -92,6 +103,7 @@ class InMemoryStore:
 
     def upsert_profile(self, user_id: str, profile: UserProfile) -> None:
         self.profiles[user_id] = profile
+        self._persist()
 
     def get_profile(self, user_id: str) -> UserProfile:
         return self.profiles.get(user_id, UserProfile())

@@ -2,58 +2,69 @@ from __future__ import annotations
 
 from typing import Any
 
-WB2_INTERVENTIONS: list[dict[str, Any]] = [
+CURRICULUM_INTERVENTIONS: list[dict[str, Any]] = [
     {
         "id": "perma_baseline_authentic_happiness",
-        "title": "Baseline: PERMA & happiness scales",
-        "summary": "Take established surveys online and save scores as a baseline you can compare later (e.g. week 10).",
-        "duration_hint_min": 45,
-        "category": "curriculum",
+        "title": "Baseline Assessment of Well-Being",
+        "summary": (
+            "Snapshot your wellbeing at the Authentic Happiness Test Center and paste scores below. "
+            "You’ll repeat around week 10 to see what changed.\n\n"
+            "• Sign up, complete the surveys, note the date you finished.\n"
+            "• Percentiles may reflect age, region, and other factors.\n"
+            "• Add other scores too (stress, optimism, etc.) if you like—then answer the questions."
+        ),
+        "duration_approx": "About 45 minutes",
+        "category": "assessment",
         "fields": [
             {
                 "key": "ah_link_note",
-                "label": "Where & when you completed them",
-                "hint": "UPenn Authentic Happiness Test Center (create an account): https://www.authentichappiness.sas.upenn.edu/testcenter — note the date.",
+                "label": "Test Center — when you completed",
+                "hint": (
+                    "Site: https://www.authentichappiness.sas.upenn.edu/testcenter "
+                    "(create an account). Note the date you finished."
+                ),
             },
             {
                 "key": "perma_scores",
-                "label": "PERMA profile: scores and percentiles",
-                "hint": "Write scores; add percentiles for age/region if the site gives them.",
+                "label": "1a. PERMA Questionnaire — your scores",
+                "hint": "Scores and percentiles if the site gives them.",
             },
             {
                 "key": "ghq_scores",
-                "label": "General Happiness Questionnaire: scores",
-                "hint": "Same as above.",
+                "label": "1b. General Happiness Questionnaire — your scores",
+                "hint": "Scores and percentiles if given.",
             },
             {
                 "key": "swls_scores",
-                "label": "Satisfaction With Life (SWLS): scores",
-                "hint": "Same as above.",
+                "label": "1c. Satisfaction With Life Test — your scores",
+                "hint": "Scores and percentiles if given.",
             },
             {
                 "key": "other_measures",
-                "label": "Other measures (optional)",
-                "hint": "Stress, optimism, etc.—say where they came from and when.",
-            },
-            {
-                "key": "q_scores_summary",
-                "label": "Your scores in one place",
-                "hint": "A simple list for future you.",
+                "label": "1d. Other measures",
+                "hint": "Any other questionnaires you want for week 1 (Test Center or other sources).",
             },
             {
                 "key": "q_surprise",
-                "label": "Anything surprise you? Which scale most?",
+                "label": "2. Were you surprised by any results? Why or why not? Which survey in particular?",
                 "hint": "",
             },
             {
                 "key": "q_movable",
-                "label": "What feels changeable? What might shift in weeks or months?",
+                "label": (
+                    "3. Do you think any of these are moveable—could scores be quite different "
+                    "in a few weeks or months? Why or why not? Which scale(s) might move the most?"
+                ),
                 "hint": "",
             },
             {
                 "key": "q_free",
-                "label": "Anything else",
-                "hint": "Reactions, what you want to work on this term, leaving pages for later scores, etc.",
+                "label": (
+                    "4. Other comments — reactions, what you hope to work on this quarter, "
+                    "or notes (you’ll do more self-assessments later; you might keep a section "
+                    "for all wellbeing scores and mark it in a table of contents)."
+                ),
+                "hint": "",
             },
         ],
     },
@@ -61,7 +72,7 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
         "id": "gratitude_letter_wb2",
         "title": "Gratitude letter",
         "summary": "Write to someone who mattered; ideally read it to them. Here you capture the experience, not necessarily the full letter.",
-        "duration_hint_min": 40,
+        "duration_approx": "About 40 minutes",
         "category": "curriculum",
         "fields": [
             {
@@ -108,9 +119,9 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
     },
     {
         "id": "savoring_homework_wb2",
-        "title": "Savoring homework",
+        "title": "Savoring practices",
         "summary": "Plan a pleasant experience and use savoring strategies; note kill-joy thoughts too.",
-        "duration_hint_min": 60,
+        "duration_approx": "About 60 minutes",
         "category": "curriculum",
         "fields": [
             {
@@ -142,15 +153,23 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
     },
     {
         "id": "three_good_things_wb2",
-        "title": "Three good things",
-        "summary": "Classic Seligman exercise: three things that went well and why—often before bed, several times per week.",
-        "duration_hint_min": 10,
+        "title": "Three good things gratitude exercise",
+        "summary": (
+            "Each time, list three things that went well and briefly why—classic Seligman exercise. "
+            "Do this at least three times this week (about 5–10 minutes per session; end of day often works).\n\n"
+            "• Write here or on paper—not only in your head.\n"
+            "• For each item: short title, what happened, how you felt then and now, why you think it happened.\n"
+            "• Small wins and big wins both count. If you drift negative, gently return to the good event.\n\n"
+            "If your course shares a 3GT video (e.g. Seligman) or a printable “3 Good Things Activity,” use those too. "
+            "Use the end-of-week box below to reflect on how it went."
+        ),
+        "duration_approx": "About 5–10 min per session · 3+ times this week",
         "category": "curriculum",
         "fields": [
             {
                 "key": "tgt_session_date",
                 "label": "Date / which session this week",
-                "hint": "e.g. “Wed, 2 of 3.”",
+                "hint": "e.g. Wed — 2 of 3 this week.",
             },
             {
                 "key": "tgt_1_title",
@@ -214,32 +233,11 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
             },
             {
                 "key": "tgt_report",
-                "label": "End-of-week note (optional)",
-                "hint": "Mood, behavior, will you keep doing it?",
-            },
-        ],
-    },
-    {
-        "id": "best_future_self_109_king",
-        "title": "109-year-old self + time machine (Laura King style)",
-        "summary": "Free-write your life at 109 if all went well; then what that self would tell you now; then action bullets.",
-        "duration_hint_min": 25,
-        "category": "curriculum",
-        "fields": [
-            {
-                "key": "bfs_step1",
-                "label": "Step 1 (~5 min): You at 109, life went as well as it could",
-                "hint": "Timer on. No editing—just write.",
-            },
-            {
-                "key": "bfs_step2",
-                "label": "Step 2 (~5 min): That self sits beside you—what do they say?",
-                "hint": "Same: keep the pen moving.",
-            },
-            {
-                "key": "bfs_step3",
-                "label": "Step 3 (~2 min): Pull out action bullets",
-                "hint": "Top three to focus on in the next few days.",
+                "label": "End-of-week report",
+                "hint": (
+                    "How it worked for you; what specific emotions, behaviors, or symptoms changed; "
+                    "what you thought about the activity; whether you think you’ll keep doing it."
+                ),
             },
         ],
     },
@@ -247,7 +245,7 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
         "id": "hope_plan_wb2",
         "title": "Hope plan (Snyder)",
         "summary": "Short- and long-term goals, pathways, obstacles, strengths, and resources.",
-        "duration_hint_min": 35,
+        "duration_approx": "About 35 minutes",
         "category": "curriculum",
         "fields": [
             {
@@ -284,24 +282,44 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
     },
     {
         "id": "optimism_style_self_report_wb2",
-        "title": "Hope & optimism self-report",
-        "summary": "Record scores (e.g. Adult Hope Scale, LOT-R, learned optimism) and compare to published averages if you find them.",
-        "duration_hint_min": 30,
-        "category": "curriculum",
+        "title": "Learning about your own optimistic style",
+        "summary": (
+            "Take the questionnaires online (links in the fields), then enter your scores below.\n\n"
+            "Rough research context only—samples vary; not a diagnosis.\n\n"
+            "• LOT-R: many adults land near the mid-teens on common 0–4 totals; your form’s guide matters most.\n"
+            "• Adult Hope Scale: scores often cluster mid-to-upper; follow your version’s scoring.\n\n"
+            "Official percentiles or norms from the test site beat any rough average."
+        ),
+        "duration_approx": "About 30 minutes",
+        "category": "assessment",
         "fields": [
             {
-                "key": "opt_scores",
-                "label": "Your scores (which tests, what numbers)",
-                "hint": "Date and source.",
+                "key": "opt_lot_r",
+                "label": "LOT-R — your scores",
+                "hint": (
+                    "Take the test (or use materials your instructor provides). "
+                    "UPenn Positive Psychology Center overview: "
+                    "https://ppc.sas.upenn.edu/resources/questionnaires-research/life-orientation-test-revised-lot-r "
+                    "— enter totals/subscales exactly as your form shows."
+                ),
             },
             {
-                "key": "opt_norms",
-                "label": "Norms or averages you looked up",
-                "hint": "Quick citation is enough.",
+                "key": "opt_ahs",
+                "label": "Adult Hope Scale — your scores",
+                "hint": (
+                    "UPenn overview (agency, pathways): "
+                    "https://ppc.sas.upenn.edu/resources/questionnaires-research/adult-hope-scale "
+                    "— enter scores as instructed on your version."
+                ),
+            },
+            {
+                "key": "opt_other",
+                "label": "Other optimism / hope measures",
+                "hint": "Name the scale, link if any, and your scores.",
             },
             {
                 "key": "opt_reaction",
-                "label": "Your reaction: expected? Consistent across scales?",
+                "label": "Your reaction: what matched your expectations? Anything surprising across scales?",
                 "hint": "",
             },
             {
@@ -311,50 +329,72 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
             },
             {
                 "key": "opt_boost",
-                "label": "Strategies to build optimism",
+                "label": "Ideas to build hope or optimism this term",
                 "hint": "",
             },
         ],
     },
     {
         "id": "best_possible_self_expanded_wb2",
-        "title": "Best possible self (expanded, repeated)",
-        "summary": "5–10 years out, everything went well—write several times this week, then reflect on purpose, pathways, and mood.",
-        "duration_hint_min": 20,
+        "title": "Best possible self (expanded version)",
+        "summary": (
+            "Picture your life after everything has gone as well as it could—then write it out.\n\n"
+            "• Three sessions this week (~15–20 minutes each; e.g. Mon / Wed / Fri).\n"
+            "• Be specific: places, people, routines—not just “I’m happy.” Describe success as already real.\n"
+            "• Keep it private and honest.\n\n"
+            "After your last session, use the reflection boxes below (purpose, hope pathways, hedonic benefits)."
+        ),
+        "duration_approx": "About 15–20 min per session",
         "category": "curriculum",
         "fields": [
             {
                 "key": "bps_ex_session",
-                "label": "Which session / date",
-                "hint": "e.g. “3rd write, Friday night.”",
+                "label": "This session (1, 2, or 3) and date",
+                "hint": "e.g. “Session 2 — Wednesday.”",
             },
             {
                 "key": "bps_ex_body",
-                "label": "Your scene",
-                "hint": "Work, relationships, health, weekends, how you feel—story style, grammar optional.",
+                "label": "Your writing for this session",
+                "hint": (
+                    "Prompt: “Take a moment to imagine your life in the future—let’s say 5 to 10 years from now. "
+                    "Imagine that everything has gone as well as it possibly could. You have worked hard and succeeded at accomplishing all of your life goals. "
+                    "Think of this as the realization of all of your dreams. "
+                    "Now, write about what you see. Be specific. Don’t worry about grammar or punctuation; just focus on the details of your career, relationships, hobbies, and health. "
+                    "How do you feel? What does your daily life look like?”"
+                ),
             },
             {
                 "key": "bps_ex_ref_purpose",
-                "label": "Reflection: values or sense of purpose showing through?",
-                "hint": "",
+                "label": "After your final session — Cultivating purpose",
+                "hint": (
+                    "How did visualizing your “Best Possible Self” help you identify your core values? "
+                    "In what ways does having a clear image of your future self provide a sense of profound purpose "
+                    "(meaningful direction) in your current daily life?"
+                ),
             },
             {
                 "key": "bps_ex_ref_pathway",
-                "label": "Reflection: one pathway or step this term (Snyder’s hope theory)",
-                "hint": "",
+                "label": "After your final session — Agency & pathways (Snyder’s Hope Theory)",
+                "hint": (
+                    "Hope requires both “willpower” (agency) and “waypower” (pathways). "
+                    "Which specific pathway or step can you take this semester to move toward the version of yourself you described?"
+                ),
             },
             {
                 "key": "bps_ex_ref_hedonic",
-                "label": "Reflection: mood during/after? How to make this a small repeatable habit?",
-                "hint": "",
+                "label": "After your final session — Hedonic benefits",
+                "hint": (
+                    "What emotion changes happened while doing this or after? "
+                    "How could you incorporate this into some type of regular practice to regularly experience these benefits?"
+                ),
             },
         ],
     },
     {
         "id": "awe_walk_wb2",
         "title": "Awe walk",
-        "summary": "Spend time outdoors where awe is likely; optional Greater Good awe quiz.",
-        "duration_hint_min": 45,
+        "summary": "Spend time outdoors where awe is likely; use the prompts below after your outing.",
+        "duration_approx": "About 45 minutes",
         "category": "curriculum",
         "fields": [
             {
@@ -364,47 +404,61 @@ WB2_INTERVENTIONS: list[dict[str, Any]] = [
             },
             {
                 "key": "awe_q1",
-                "label": "Why might humans feel awe? Any upside for survival?",
+                "label": (
+                    "1. Why do you think people feel awe in the first place? "
+                    "Can you think of an advantage that experiencing awe might afford that makes it helpful to human survival?"
+                ),
                 "hint": "",
             },
             {
                 "key": "awe_q2",
-                "label": "Body sensations, thoughts, or shifts in how you see yourself or others?",
+                "label": (
+                    "2. During your Awe Outing, did you experience any notable physical sensations or did any memorable "
+                    "questions arise in your mind? Did you notice any new kind of understanding, or have any special "
+                    "thoughts or cool ideas? Did you notice any differences in your feelings or judgements about yourself, "
+                    "other people, or your social connections – both close others and humanity at large?"
+                ),
                 "hint": "",
             },
             {
                 "key": "awe_last_three",
-                "label": "Last three times you felt awe (brief)",
+                "label": "3. Open writing reflection: Briefly describe the last three experiences in your life where you felt awe.",
                 "hint": "",
             },
             {
                 "key": "awe_quiz",
-                "label": "Berkeley awe quiz score & ideas to get more awe",
+                "label": "Berkeley awe quiz — score & ideas to get more awe",
                 "hint": "https://greatergood.berkeley.edu/quizzes/take_quiz/awe",
             },
         ],
     },
     {
         "id": "nature_challenge_30x30_wb2",
-        "title": "30×30 nature challenge (optional)",
-        "summary": "30 minutes in nature daily for 30 days—track simply; reflect when you’re done.",
-        "duration_hint_min": 30,
-        "category": "curriculum",
+        "title": "Awe walk 30×30 nature challenge",
+        "summary": (
+            "30 minutes outside every day for 30 days. On Home → Your habits, use the Awe walk 30×30 section: "
+            "pick a start day, tap days on the calendar for mood and a short note, then when the month is done "
+            "mark finished and write your overall reflection."
+        ),
+        "duration_approx": "30 min daily × 30 days",
+        "category": "nature30",
         "fields": [
             {
                 "key": "n30_commit",
-                "label": "Start date & how you’ll track",
-                "hint": "Checklist, notes app—whatever you’ll actually use.",
+                "label": "Start date & how you’ll stay on track",
+                "hint": "Calendar, checklist, or this app’s tracker—whatever you’ll actually use.",
             },
             {
-                "key": "n30_daily_notes",
-                "label": "Snippets from along the way (optional)",
-                "hint": "Mood, focus, connection, meaning—whatever matters.",
+                "key": "n30_daily_json",
+                "label": "Daily mood log",
+                "hint": "Use the tracker above; this field is filled automatically when you save.",
             },
             {
                 "key": "n30_reflection",
-                "label": "When it’s over: overall reflection",
-                "hint": "Did you complete it? What shifted—positive and hard?",
+                "label": "When you’re done: overall reflection",
+                "hint": (
+                    "At least a paragraph: completion, emotions, focus, connection, meaning, or anything else that stood out."
+                ),
             },
         ],
     },

@@ -76,6 +76,8 @@ let sessionGuidedVariant = "breathing";
 const SESSION_WELLNESS_INSTRUCTION =
   "Finding a quiet space, sitting comfortably with a straight back, and focusing on your breath for 5–10 minutes.";
 
+const SESSION_BREATHING_PHASE = "Inhale 4 · exhale 6";
+
 function getDefaultSessionSeconds() {
   return sessionGuidedVariant === "meditation" ? 600 : 120;
 }
@@ -1883,7 +1885,13 @@ function resetBreathingSessionUi() {
   $("#session-reflection").value = "";
   $("#btn-session-timer-toggle").textContent =
     sessionGuidedVariant === "meditation" ? "Start 10-minute timer" : "Start 2-minute timer";
-  $("#session-phase").textContent = SESSION_WELLNESS_INSTRUCTION;
+  if (sessionGuidedVariant === "meditation") {
+    const sm = $("#session-music-mode");
+    if (sm) sm.value = "youtube";
+    $("#session-phase").textContent = SESSION_WELLNESS_INSTRUCTION;
+  } else {
+    $("#session-phase").textContent = SESSION_BREATHING_PHASE;
+  }
   setGuidedSessionTimerPaused(false);
   const orb = $("#breath-orb");
   orb?.classList.remove("is-exhale");
@@ -1904,8 +1912,13 @@ function updateSessionMusicNote() {
     el.textContent = "";
     return;
   }
+  if (sessionGuidedVariant === "meditation") {
+    el.textContent =
+      "Meditation uses the Lemon-Bright chill playlist (same as Check-in) when you start the timer.";
+    return;
+  }
   el.textContent =
-    "Starts the chill playlist on YouTube when you start the timer (matches this session type).";
+    "Starts the matching chill playlist on YouTube when you start the timer (breathing session).";
 }
 
 function stopSessionSound() {
@@ -1923,8 +1936,8 @@ function startSessionSoundForMode() {
   if (mode === "off") return;
   const a = $("#session-youtube-audio");
   const wrap = $("#session-youtube-audio-wrap");
-  const key = sessionGuidedVariant === "meditation" ? "meditation" : "breathing";
-  const base = SESSION_SOUND_EMBED[key];
+  const base =
+    sessionGuidedVariant === "meditation" ? CHILL_EMBED_BASE : SESSION_SOUND_EMBED.breathing;
   if (a && wrap && base) {
     a.src = `${base}&autoplay=1`;
     wrap.classList.remove("hidden");
@@ -1954,7 +1967,8 @@ function initSessionControls() {
       sessionSecondsLeft = getDefaultSessionSeconds();
       updateTimerDisplay();
       $("#session-after-breathing")?.classList.add("hidden");
-      $("#session-phase").textContent = SESSION_WELLNESS_INSTRUCTION;
+      $("#session-phase").textContent =
+        sessionGuidedVariant === "meditation" ? SESSION_WELLNESS_INSTRUCTION : SESSION_BREATHING_PHASE;
     }
     btn.textContent = "Pause";
     setGuidedSessionTimerPaused(false);
@@ -1963,9 +1977,7 @@ function initSessionControls() {
     sessionTimerId = setInterval(() => {
       sessionSecondsLeft -= 1;
       updateTimerDisplay();
-      if (sessionGuidedVariant === "breathing") {
-        orb?.classList.toggle("is-exhale", sessionSecondsLeft % 10 < 6);
-      }
+      orb?.classList.toggle("is-exhale", sessionSecondsLeft % 10 < 6);
       if (sessionSecondsLeft <= 0) {
         clearInterval(sessionTimerId);
         sessionTimerId = null;

@@ -1590,10 +1590,6 @@ a {
   max-width: 36em;
 }
 
-#session-body-guided[data-guided-variant="meditation"] .breath-orb-wrap {
-  display: none;
-}
-
 #session-body-guided.is-timer-paused .breath-orb {
   animation-play-state: paused !important;
 }

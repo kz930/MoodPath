@@ -42,7 +42,7 @@ const SESSION_VIDEO_EMBED = {
 };
 
 const SESSION_SOUND_EMBED = {
-  breathing: "https://www.youtube.com/embed/zPyg4N7bcHM?list=RDzPyg4N7bcHM&rel=0",
+  breathing: "https://www.youtube.com/embed/4vSzefD9oh4?rel=0",
   meditation: "https://www.youtube.com/embed/FjHGZj2IjBk?list=RDFjHGZj2IjBk&rel=0",
 };
 
@@ -1912,13 +1912,7 @@ function updateSessionMusicNote() {
     el.textContent = "";
     return;
   }
-  if (sessionGuidedVariant === "meditation") {
-    el.textContent =
-      "Meditation uses the Lemon-Bright chill playlist (same as Check-in) when you start the timer.";
-    return;
-  }
-  el.textContent =
-    "Starts the matching chill playlist on YouTube when you start the timer (breathing session).";
+  el.textContent = "Starts the chill playlist on YouTube when you start the timer.";
 }
 
 function stopSessionSound() {
@@ -1936,8 +1930,7 @@ function startSessionSoundForMode() {
   if (mode === "off") return;
   const a = $("#session-youtube-audio");
   const wrap = $("#session-youtube-audio-wrap");
-  const base =
-    sessionGuidedVariant === "meditation" ? CHILL_EMBED_BASE : SESSION_SOUND_EMBED.breathing;
+  const base = SESSION_SOUND_EMBED.breathing;
   if (a && wrap && base) {
     a.src = `${base}&autoplay=1`;
     wrap.classList.remove("hidden");

@@ -1,11 +1,34 @@
 from __future__ import annotations
 
+import os
 from datetime import date, timedelta
 from pathlib import Path
+from typing import Any
 
+import httpx
+
+
+# Load .env (project root) into os.environ before anything reads keys.
+def _load_dotenv() -> None:
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if not env_path.exists():
+        return
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, val = line.partition("=")
+        key = key.strip()
+        val = val.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = val
+
+
+_load_dotenv()
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 from .agents import run_intervention_agent
 from .auth import create_access_token, get_current_user_id, hash_password, new_user_id, verify_password
@@ -52,7 +75,7 @@ def root() -> dict[str, str]:
 
 @app.get("/ui")
 def ui() -> FileResponse:
-    return FileResponse(WEB_DIR / "index.html")
+    return FileResponse(WEB_DIR / "Moodpath.html")
 
 
 @app.get("/health")
@@ -137,7 +160,7 @@ def practice_submit(body: PracticeSubmitBody, uid: str = Depends(get_current_use
         notes=body.notes,
         responses=body.responses,
     )
-    store.save_reflection(payload)
+    store.save_reflection(payload, upsert=body.upsert)
     if body.completed:
         feedback = "Nice — you showed up for the practice. That kind of repetition is what actually changes things."
     else:
@@ -290,6 +313,220 @@ def me_practices(
 @app.get("/me/practice-dates", response_model=PracticeDatesResponse)
 def me_practice_dates(uid: str = Depends(get_current_user_id)) -> PracticeDatesResponse:
     return PracticeDatesResponse(dates=store.practice_dates(uid))
+
+
+# ─── AI chat companion (OpenAI-backed) ──────────────────────────
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatDayContext(BaseModel):
+    date: str | None = None
+    mood: int | None = None
+    stress: int | None = None
+    energy: int | None = None
+
+
+class ChatBody(BaseModel):
+    messages: list[ChatMessage] = Field(default_factory=list)
+    recent_days: list[ChatDayContext] = Field(default_factory=list)
+
+
+CHAT_MODEL = os.environ.get("MOODPATH_CHAT_MODEL", "gpt-4o-mini")
+
+CHAT_SYSTEM_BASE = (
+    "You are a warm, gentle companion inside the MoodPath journaling app. "
+    "You are NOT a therapist, and you must say so if asked. "
+    "Keep replies short (2-4 sentences). Use simple, kind language at about a 7th-grade reading level. "
+    "Do not give medical or crisis advice. If the user mentions self-harm or suicide, "
+    "gently encourage them to reach 988 (US Suicide & Crisis Lifeline) or text HOME to 741741. "
+    "Avoid lists unless the user asks for them. Never lecture. Never start with 'It sounds like…'."
+)
+
+# Three modes — chosen at runtime based on the user's recent mood/stress.
+CHAT_MODE_REFRAME = (
+    "MODE: ACTIVE REFRAMER. The user's recent days show high stress or low mood, so they likely "
+    "need help untangling a sticky thought. Pattern for each reply: "
+    "(1) name the feeling in one short sentence so they feel heard, "
+    "(2) ask ONE small Socratic question that opens up the thought (e.g. 'what's one piece of "
+    "evidence that doesn't fit?' or 'has there been a time it went differently?'), or offer ONE "
+    "balanced reframe in plain words. "
+    "Pick ONE move, not both. Keep it short. Be a kind sparring partner, not a coach with a script."
+)
+CHAT_MODE_GENTLE = (
+    "MODE: GENTLE LISTENER. The user's recent days look mixed or neutral. "
+    "Mostly listen and reflect feelings back. Validate first. "
+    "Only offer a reframe or a tiny next step if they explicitly ask, or if a worry sounds clearly "
+    "stuck. Otherwise let them lead — short questions like 'what's that like for you?' are great."
+)
+CHAT_MODE_SAVOR = (
+    "MODE: SAVOR & BUILD. The user's recent days look pretty good. "
+    "Help them notice and stay with what's working. Ask what they want more of, or what a small "
+    "next step would be to keep this going. Don't manufacture worry. "
+    "Stay warm and curious, not sappy."
+)
+
+
+def _pick_chat_mode(recent: list["ChatDayContext"]) -> str:
+    """Return one of REFRAME / GENTLE / SAVOR based on recent mood and stress."""
+    if not recent:
+        return CHAT_MODE_GENTLE
+    valid_stress = [d.stress for d in recent if d.stress is not None]
+    valid_mood = [d.mood for d in recent if d.mood is not None]
+    latest = recent[-1]
+    avg_stress = sum(valid_stress) / len(valid_stress) if valid_stress else None
+    avg_mood = sum(valid_mood) / len(valid_mood) if valid_mood else None
+    latest_stress = latest.stress
+    latest_mood = latest.mood
+
+    high_stress = (latest_stress is not None and latest_stress >= 7) or (
+        avg_stress is not None and avg_stress >= 6
+    )
+    low_mood = (latest_mood is not None and latest_mood <= 2) or (
+        avg_mood is not None and avg_mood <= 2.5
+    )
+    good_mood = (latest_mood is not None and latest_mood >= 4) or (
+        avg_mood is not None and avg_mood >= 4
+    )
+
+    if high_stress or low_mood:
+        return CHAT_MODE_REFRAME
+    if good_mood and not high_stress:
+        return CHAT_MODE_SAVOR
+    return CHAT_MODE_GENTLE
+
+
+def _format_context(recent: list[ChatDayContext]) -> str:
+    if not recent:
+        return ""
+    parts = []
+    for d in recent[-7:]:
+        bits = []
+        if d.mood is not None:
+            label = {1: "rough", 2: "meh", 3: "okay", 4: "good", 5: "great"}.get(int(d.mood), "")
+            bits.append(f"mood {d.mood}/5 ({label})" if label else f"mood {d.mood}/5")
+        if d.stress is not None:
+            bits.append(f"stress {d.stress}/10")
+        if d.energy is not None:
+            bits.append(f"energy {d.energy}/10")
+        if bits:
+            parts.append(f"- {d.date or '?'}: {', '.join(bits)}")
+    if not parts:
+        return ""
+    return "Recent context (most recent last):\n" + "\n".join(parts)
+
+
+class AnalyzeWritingBody(BaseModel):
+    samples: list[str] = Field(default_factory=list)
+
+
+WRITING_ANALYSIS_SYSTEM = (
+    "You are a positive-psychology writing analyst inside the MoodPath app. "
+    "You will be given 1–2 short writing samples from the user. "
+    "Write a short, kind analysis (about 200 words total) at a 7th-grade reading level. "
+    "Cover: (1) the most common WORD CATEGORIES you notice (e.g. positive emotion words, "
+    "negative emotion words, social words, achievement, time, body, etc.), "
+    "(2) any recurring THEMES (e.g. growth, regret, connection, control, meaning), "
+    "(3) one observation about what the writing might suggest about the writer's well-being right now, "
+    "and (4) one gentle question they could ask themselves. "
+    "Be concrete and specific to their actual words. Do NOT diagnose. "
+    "Use simple, kind language. Keep it short."
+)
+
+
+@app.post("/analyze-writing")
+async def analyze_writing(body: AnalyzeWritingBody, uid: str = Depends(get_current_user_id)) -> dict[str, str]:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        raise HTTPException(status_code=503, detail="analyze_unavailable: OPENAI_API_KEY not set")
+    samples = [s.strip() for s in body.samples if s and s.strip()]
+    if not samples:
+        raise HTTPException(status_code=400, detail="no_samples: paste at least one writing sample")
+
+    user_payload = "\n\n---\n\n".join(
+        f"Sample {i + 1}:\n{s[:4000]}" for i, s in enumerate(samples[:2])
+    )
+
+    payload: dict[str, Any] = {
+        "model": CHAT_MODEL,
+        "messages": [
+            {"role": "system", "content": WRITING_ANALYSIS_SYSTEM},
+            {"role": "user", "content": user_payload},
+        ],
+        "temperature": 0.5,
+        "max_tokens": 500,
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=45.0) as client:
+            r = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+            )
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"openai_unreachable: {e}")
+
+    if r.status_code != 200:
+        raise HTTPException(status_code=502, detail=f"openai_error: {r.status_code} {r.text[:200]}")
+
+    data = r.json()
+    analysis = (data.get("choices") or [{}])[0].get("message", {}).get("content", "").strip()
+    if not analysis:
+        analysis = "i couldn't read enough in those samples — try pasting longer pieces."
+    return {"analysis": analysis}
+
+
+@app.post("/chat")
+async def chat(body: ChatBody, uid: str = Depends(get_current_user_id)) -> dict[str, str]:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        raise HTTPException(status_code=503, detail="chat_unavailable: OPENAI_API_KEY not set")
+
+    mode = _pick_chat_mode(body.recent_days)
+    messages: list[dict[str, str]] = [
+        {"role": "system", "content": CHAT_SYSTEM_BASE},
+        {"role": "system", "content": mode},
+    ]
+    ctx = _format_context(body.recent_days)
+    if ctx:
+        messages.append({"role": "system", "content": ctx})
+    for m in body.messages[-20:]:  # cap history
+        if m.role in ("user", "assistant"):
+            messages.append({"role": m.role, "content": m.content[:2000]})
+
+    payload: dict[str, Any] = {
+        "model": CHAT_MODEL,
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 280,
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            r = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+            )
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"openai_unreachable: {e}")
+
+    if r.status_code != 200:
+        raise HTTPException(status_code=502, detail=f"openai_error: {r.status_code} {r.text[:200]}")
+
+    data = r.json()
+    reply = (data.get("choices") or [{}])[0].get("message", {}).get("content", "").strip()
+    if not reply:
+        reply = "i'm here. tell me a bit more."
+    return {"reply": reply}
 
 
 app.mount("/static", StaticFiles(directory=str(WEB_DIR)), name="static")

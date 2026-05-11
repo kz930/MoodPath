@@ -88,7 +88,15 @@ class InMemoryStore:
     def get_recommendation(self, user_id: str, target_date: date) -> InterventionOutput | None:
         return self.recommendations[user_id].get(target_date)
 
-    def save_reflection(self, payload: ReflectionInput) -> None:
+    def save_reflection(self, payload: ReflectionInput, upsert: bool = False) -> None:
+        # If upsert: replace any prior record for the same (user, date, intervention_type)
+        if upsert:
+            existing = self.reflections[payload.user_id]
+            for i, r in enumerate(existing):
+                if r.date == payload.date and r.intervention_type == payload.intervention_type:
+                    existing[i] = payload
+                    self._persist()
+                    return
         self.reflections[payload.user_id].append(payload)
         self._persist()
 

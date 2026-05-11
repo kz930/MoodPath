@@ -9,43 +9,42 @@ INTERVENTION_CATALOG: list[dict[str, Any]] = [
     {
         "id": "gratitude",
         "title": "Gratitude",
-        "summary": "Shift attention to what's already supporting you, even in small ways.",
+        "summary": "Notice small things that helped you today. Even tiny ones count.",
         "category": "core",
         "duration_approx": "About 8 minutes",
         "fields": [
             {
                 "key": "g1",
-                "label": "First thing you’re grateful for",
-                "hint": "Who or what helped, even a little.",
-                "placeholder": "Someone or something specific — even a small kindness counts.",
+                "label": "One thing you are thankful for",
+                "hint": "Anything that helped, even a little.",
+                "placeholder": "A person, food, song, or moment.",
             },
             {
                 "key": "g2",
-                "label": "Second",
-                "hint": "From today or something easy to miss.",
-                "placeholder": "Another moment or person — basics are fine.",
+                "label": "A second thing",
+                "hint": "Easy things to miss are okay.",
+                "placeholder": "Maybe a friend, the weather, or a small win.",
             },
             {
                 "key": "g3",
-                "label": "Third",
-                "hint": "Basics are fine: food, rest, a person, weather.",
-                "placeholder": "A third thing — food, rest, weather, a text…",
+                "label": "A third thing",
+                "hint": "Simple is fine — food, rest, a kind text.",
+                "placeholder": "Anything that made today a bit better.",
             },
             {
                 "key": "g_action",
-                "label": "One tiny follow-up for tomorrow",
-                "hint": "One sentence — a small next step.",
-                "placeholder": "One realistic sentence — something you could actually do.",
+                "label": "One small step for tomorrow",
+                "hint": "One short sentence.",
+                "placeholder": "Something easy you can really do.",
             },
         ],
     },
     {
         "id": "best_possible_self",
-        "title": "Best possible future self (Laura King)",
+        "title": "Best future self",
         "summary": (
-            "Evidence-based writing exercise: first imagine your life at 109 if everything went as well as possible; "
-            "then your 109-year-old self visits you with advice; then you turn that into a few action points. "
-            "In the timed writes, don’t self-edit—keep writing."
+            "Picture your life going really well. Write what you see, then turn it into small steps. "
+            "Just keep writing — do not worry about grammar."
         ),
         "category": "core",
         "duration_approx": "About 12 minutes",
@@ -53,103 +52,109 @@ INTERVENTION_CATALOG: list[dict[str, Any]] = [
             {
                 "key": "bps_king_109",
                 "label": "Step 1 — about 5 minutes",
-                "placeholder": "Keep your pen moving — don’t edit as you go.",
+                "placeholder": "Keep writing. Do not stop to fix words.",
                 "hint": (
-                    "Write continuously without self-editing, without holding back. Use this prompt: "
-                    "“Think about your life in the future when you are 109 years old. Imagine that everything has gone as well as it possibly could. "
-                    "You have worked hard and succeeded at accomplishing all your life goals. Think of this as the realization of all your life dreams. "
-                    "Now, write about what you imagined.”"
+                    "Imagine you are 109 years old. Everything has gone as well as you hoped. "
+                    "You worked hard and reached your goals. Write what your life looks like."
                 ),
             },
             {
                 "key": "bps_king_time_machine",
                 "label": "Step 2 — about 5 minutes",
-                "placeholder": "Let the advice flow out — no polishing yet.",
+                "placeholder": "Let the words come. No editing.",
                 "hint": (
-                    "Again, no self-editing or criticism—keep the pen moving. Use this prompt: "
-                    "“Imagine that your 109-year-old self had access to a time machine. They jumped into that time machine and arrived at this very moment in time. "
-                    "They climb out, sit next to you and give you advice. What would they say?” Write down everything."
+                    "Now picture your 109-year-old self in a time machine. They visit you today. "
+                    "They sit beside you and give you advice. What do they say?"
                 ),
             },
             {
                 "key": "bps_king_actions",
                 "label": "Step 3 — about 2 minutes",
-                "placeholder": "Bullet-style is fine — what will you actually remember day to day?",
-                "hint": (
-                    "From that advice, create a list of action points. Focus on the top three action points to keep in mind every day."
-                ),
+                "placeholder": "Bullet points are fine.",
+                "hint": "From their advice, pick the top 3 things to remember every day.",
             },
         ],
     },
     {
         "id": "cognitive_reframing",
         "title": "Cognitive reframing",
-        "summary": (
-            "📝 Pause the spiral. Is there another way to look at this that still fits the facts?"
-        ),
+        "summary": "Slow down a worry. Look at it again. Find a kinder, true way to see it.",
         "category": "core",
         "duration_approx": "About 8 minutes",
         "fields": [
             {
                 "key": "cr_hot",
-                "label": "💭 Original Thought\n(What’s the exact worry in your mind?)",
-                "hint": "",
-                "placeholder": "Write your thought exactly as it sounds — messy is okay.",
+                "label": "💭 The worry\n(What is the exact thought?)",
+                "hint": "Messy is fine.",
+                "placeholder": "Write the thought just like it sounds in your head.",
             },
             {
                 "key": "cr_evidence_for",
-                "label": "🔍 Supporting Evidence\n(What facts actually support this thought?)",
-                "hint": "",
-                "placeholder": "List only real evidence — it’s okay if there’s not much.",
+                "label": "🔍 Facts that support it",
+                "hint": "Only real facts. It is okay if there are not many.",
+                "placeholder": "What makes this thought feel true?",
             },
             {
                 "key": "cr_evidence_against",
-                "label": "⚖️ Contradicting Evidence\n(What doesn’t fully fit this thought?)",
-                "hint": "Think: times it went okay, your skills, support, or things you can control",
-                "placeholder": "What evidence goes against this?",
+                "label": "⚖️ Facts that go against it",
+                "hint": "Times it went okay, your skills, or help you have.",
+                "placeholder": "What does not fully fit this thought?",
             },
             {
                 "key": "cr_balanced",
-                "label": "🌱 Balanced Perspective\n(A more realistic, less extreme version)",
-                "hint": "Try using “and” or “but” to hold both sides",
-                "placeholder": "Rewrite this in a more balanced way.",
+                "label": "🌱 A kinder, balanced view",
+                "hint": "Try using \"and\" or \"but\" to hold both sides.",
+                "placeholder": "Write a calmer version that still feels true.",
             },
         ],
     },
     {
         "id": "savoring",
         "title": "Savoring",
-        "summary": "Stretch a good moment: notice it with your senses and words before it slips away.",
+        "summary": "Pick one good moment. Stay with it for a minute. Notice it before it passes.",
         "category": "core",
         "duration_approx": "About 6 minutes",
         "fields": [
             {
                 "key": "sv_moment",
                 "label": "One small good moment",
-                "hint": "Anything counts — a sip, a message, light, sound.",
-                "placeholder": "e.g. the first sip of tea, a text, sunlight on the wall…",
+                "hint": "A sip, a text, a song, or light on the wall.",
+                "placeholder": "What was it?",
             },
             {
                 "key": "sv_senses",
                 "label": "What you noticed",
-                "hint": "What you saw, heard, or felt.",
-                "placeholder": "Colors, sounds, temperature, texture — whatever stood out.",
+                "hint": "What did you see, hear, or feel?",
+                "placeholder": "Colors, sounds, warmth — any small detail.",
             },
             {
                 "key": "sv_extend",
-                "label": "How to stretch it a little",
-                "hint": "What you’d linger on for half a minute more.",
-                "placeholder": "What would you pay attention to for 30 more seconds?",
+                "label": "How to make it last a little longer",
+                "hint": "What could you stay with for 30 more seconds?",
+                "placeholder": "One thing to slow down on next time.",
             },
         ],
     },
     {
         "id": "breathing_grounding",
         "title": "Breathing & grounding",
-        "summary": "Lower physical tension first; thoughts get easier after.",
+        "summary": "Calm your body first. Thoughts get easier after.",
         "category": "core",
         "duration_approx": "About 5 minutes",
+        "session_type": "breathing",
+        "video_id": "-G89S77iJm8",
+        "phase_label": "Inhale 4 · exhale 6",
+        "fields": [],
+    },
+    {
+        "id": "meditation",
+        "title": "Meditation",
+        "summary": "Sit. Breathe. Let thoughts pass like clouds.",
+        "category": "core",
+        "duration_approx": "About 10 minutes",
         "session_type": "meditation",
+        "video_id": "x0nZ1ZLephQ",
+        "phase_label": "Notice. Let go. Return.",
         "fields": [],
     },
 ] + CURRICULUM_INTERVENTIONS

@@ -49,11 +49,15 @@ def run_emotion_agent(checkin: CheckinInput) -> EmotionOutput:
     sadness_hits = sum(1 for k in sadness_keywords if k in text)
     joy_hits = sum(1 for k in joy_keywords if k in text)
 
+    # Treat sleep == 0 as "unknown" (we don't ask for it), so it doesn't push
+    # everyone into the low-arousal "emptiness" bucket.
+    sleep_known = sleep is not None and sleep > 0
+    low_sleep = sleep_known and sleep < 6
     if stress >= 7 or anxiety_hits > max(sadness_hits, joy_hits):
         primary = "anxiety"
-    elif joy_hits > max(anxiety_hits, sadness_hits):
+    elif joy_hits > max(anxiety_hits, sadness_hits) or (energy >= 7 and stress <= 4):
         primary = "joy"
-    elif energy <= 4 or sleep < 6 or sadness_hits > 0:
+    elif energy <= 4 or low_sleep or sadness_hits > 0:
         primary = "emptiness"
     else:
         primary = "mixed"
@@ -125,21 +129,41 @@ def run_pattern_agent(current_emotion: EmotionOutput, history_stress: list[int],
 
 def run_intervention_agent(emotion: EmotionOutput, pattern: PatternOutput, profile: UserProfile, recent_types: list[str]) -> InterventionOutput:
     selected: CoreInterventionType = "gratitude"
-    evidence = [f"emotion={emotion.primary_emotion}", f"arousal={emotion.arousal}", f"trend={pattern.trend}"]
+    evidence = [f"emotion={emotion.primary_emotion}", f"arousal={emotion.arousal}", f"valence={emotion.valence}"]
 
+    valence = emotion.valence
+    arousal = emotion.arousal
+
+    # Multi-axis routing — uses mood (valence), energy (low/high arousal-ish), and stress (arousal cap).
     if "7_days_high_stress" in pattern.risk_signals:
         selected = "breathing_grounding"
-    elif emotion.primary_emotion == "anxiety" and emotion.arousal > 0.65:
+    elif arousal >= 0.7:
+        # high stress / high anxiety — settle the body or reframe
+        selected = "breathing_grounding" if valence <= -0.3 else "cognitive_reframing"
+    elif emotion.primary_emotion == "anxiety":
         selected = "cognitive_reframing"
-    elif emotion.primary_emotion in ["sadness", "emptiness"] and emotion.arousal < 0.45:
+    elif valence >= 0.4:
+        # feeling pretty good — savor it OR build hope
+        selected = "savoring" if arousal >= 0.4 else "best_possible_self"
+    elif valence <= -0.3 and arousal <= 0.4:
+        # low mood + low energy — gentle gratitude shift
         selected = "gratitude"
-    elif "motivation_drop" in pattern.patterns:
+    elif emotion.primary_emotion == "emptiness":
+        # mid-low, fairly flat — give direction
         selected = "best_possible_self"
-    elif "positive_moments_unnoticed" in pattern.patterns:
+    else:
+        # mixed / neutral — savor what's there
         selected = "savoring"
 
     if recent_types.count(selected) >= 2:
-        selected = "best_possible_self" if selected != "best_possible_self" else "savoring"
+        rotate = {
+            "gratitude": "savoring",
+            "savoring": "best_possible_self",
+            "best_possible_self": "cognitive_reframing",
+            "cognitive_reframing": "gratitude",
+            "breathing_grounding": "savoring",
+        }
+        selected = rotate.get(selected, "savoring")
 
     if selected in profile.preferences.disliked_types:
         selected = "breathing_grounding"
@@ -173,11 +197,11 @@ def run_intervention_agent(emotion: EmotionOutput, pattern: PatternOutput, profi
     }
 
     reason = {
-        "gratitude": "Low-arousal low mood fits a quick gratitude shift toward what's already there.",
-        "best_possible_self": "You may need direction and hope more than analysis right now.",
-        "cognitive_reframing": "High anxiety and arousal — reframe catastrophic thoughts first.",
-        "savoring": "Positive moments may be there but easy to miss — savoring helps you keep them.",
-        "breathing_grounding": "Stress signals are high — settle the body before heavy thinking.",
+        "gratitude": "low mood + low energy — a small gratitude shift can lift the floor.",
+        "best_possible_self": "you have steady energy — a vision of where you want to go could help.",
+        "cognitive_reframing": "anxious thoughts are running hot — try untangling one of them.",
+        "savoring": "you're feeling alright — let's hold on to what's working.",
+        "breathing_grounding": "stress is high — settle the body first, thoughts get easier after.",
     }[selected]
 
     preferred = profile.preferences.exercise_length_min

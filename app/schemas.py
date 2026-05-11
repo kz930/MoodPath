@@ -16,6 +16,7 @@ CoreInterventionType = Literal[
     "cognitive_reframing",
     "savoring",
     "breathing_grounding",
+    "meditation",
 ]
 
 # Evidence-based / positive psychology curriculum (Authentic Happiness, Seligman, Snyder, etc.).
@@ -30,6 +31,13 @@ CurriculumInterventionType = Literal[
     "best_possible_self_expanded_wb2",
     "awe_walk_wb2",
     "nature_challenge_30x30_wb2",
+    "curiosity_practice_wb2",
+    "wellbeing_writing_analysis_wb2",
+    "earth_day_wb2",
+    "pay_it_forward_wb2",
+    "strengths_use_wb2",
+    "flow_intervention_wb2",
+    "kindness_self_other_wb2",
 ]
 
 InterventionType = CoreInterventionType | CurriculumInterventionType
@@ -148,6 +156,7 @@ class PracticeSubmitBody(BaseModel):
     helpfulness: int = Field(ge=1, le=5)
     notes: str = ""
     responses: dict[str, str] = Field(default_factory=dict)
+    upsert: bool = False
 
 
 class JournalEntryOut(BaseModel):

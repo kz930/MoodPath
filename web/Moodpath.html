@@ -9,28 +9,33 @@
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Nunito:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --paper: #FAEEDA;
-    --paper-soft: #F6E6CC;
-    --ink: #4A1B0C;
-    --ink-soft: #5F5E5A;
-    --ink-faded: #B4B2A9;
-    --line-dashed: #D3D1C7;
-    --mood-1: #F0997B;
-    --mood-2: #FAC775;
-    --mood-3: #C0DD97;
-    --mood-4: #9FE1CB;
-    --mood-5: #F4C0D1;
-    --accent-pink: #F4C0D1;
-    --accent-mint: #E1F5EE;
-    --accent-mint-deep: #B7E2D2;
-    --accent-amber: #EF9F27;
-    --card-white: #FFFFFF;
+    --paper: #F6EFDD;
+    --paper-soft: #EDE3CB;
+    --ink: #3D2A18;
+    --ink-soft: #6B5A45;
+    --ink-faded: #B3A88F;
+    --line-dashed: #C9BFA5;
+    --sour-apple: #DBF68F;
+    --mood-1: #B8A78A;
+    --mood-2: #D9B679;
+    --mood-3: #C9D5A0;
+    --mood-4: #9CC9A5;
+    --mood-5: #E8C2C0;
+    --accent-pink: #E8C2C0;
+    --accent-mint: #DCEAD2;
+    --accent-mint-deep: #92C3A5;
+    --accent-amber: #FFCE55;
+    --sage: #92C3A5;
+    --sage-soft: #DCEAD2;
+    --sage-deep: #568366;
+    --moss: #568366;
+    --card-white: #FCFAEF;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; height: 100%; }
   body {
     font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #efe6d4;
+    background: #e8eedb;
     color: var(--ink);
     overflow: hidden;
   }
@@ -85,22 +90,22 @@
     to   { background: var(--line-dashed); height: 1px; }
   }
 
-  /* Washi tape — pink rotated strip */
+  /* Washi tape — sage paper-tape strip */
   .washi {
     position: relative;
-    background: var(--accent-pink);
+    background: var(--sage-soft);
     height: 38px;
     margin: 0 -22px 8px -22px;
     transform: rotate(-1.1deg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--ink);
+    color: var(--moss);
     font-family: 'EB Garamond', serif;
     font-style: italic;
     font-size: 15px;
     letter-spacing: 0.02em;
-    box-shadow: 0 1px 0 rgba(74,27,12,0.05);
+    box-shadow: 0 1px 0 rgba(61,42,24,0.06);
   }
   .washi::before, .washi::after {
     content: '';
@@ -108,8 +113,8 @@
     top: 0; bottom: 0;
     width: 14px;
     background:
-      linear-gradient(90deg, rgba(255,255,255,0.45), rgba(255,255,255,0)),
-      var(--accent-pink);
+      linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0)),
+      var(--sage-soft);
   }
   .washi::before { left: 0; mask: linear-gradient(90deg, transparent 0, black 60%); -webkit-mask: linear-gradient(90deg, transparent 0, black 60%); }
   .washi::after  { right: 0; mask: linear-gradient(90deg, black 40%, transparent); -webkit-mask: linear-gradient(90deg, black 40%, transparent); }
@@ -299,6 +304,22 @@
     to   { opacity: 1; transform: translateX(0); }
   }
 
+  /* Small win drop — tumbles into basket from above */
+  @keyframes winDrop {
+    0%   { opacity: 0; transform: translateY(-90px) rotate(var(--drop-rot-start, -40deg)) scale(0.85); }
+    35%  { opacity: 1; }
+    72%  { transform: translateY(6px) rotate(var(--drop-rot-end, 0deg)) scale(1.03); }
+    86%  { transform: translateY(-3px) rotate(var(--drop-rot-end, 0deg)) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) rotate(var(--drop-rot-end, 0deg)) scale(1); }
+  }
+  /* Basket shake when a win lands */
+  @keyframes basketShake {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    30% { transform: translateY(2px) rotate(-0.6deg); }
+    60% { transform: translateY(1px) rotate(0.5deg); }
+  }
+  .basket-shake { animation: basketShake 360ms ease-out; }
+
   /* Confetti dot for streak fill */
   .dot-fill {
     animation: dotFill 380ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
@@ -316,10 +337,11 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-  <script type="text/babel" data-presets="env,react" src="/static/ios-frame.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="/static/tweaks-panel.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="/static/components.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="/static/screens.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="/static/app.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="ios-frame.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="components.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="screens.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="weekly-report.jsx"></script>
+  <script type="text/babel" data-presets="env,react" src="app.jsx"></script>
 </body>
 </html>

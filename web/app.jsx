@@ -178,11 +178,43 @@ function AuthScreen({ onAuthed }) {
 }
 
 // ─── Hooks ──────────────────────────────────────────────────────
+// Fallback catalog matching app/catalog.py — used when backend is unreachable
+const FALLBACK_CATALOG = [
+  { id: 'gratitude', title: 'Gratitude', summary: 'Notice small things that helped you today. Even tiny ones count.', category: 'core', duration_approx: 'About 8 minutes',
+    fields: [
+      { key: 'g1', label: 'One thing you are thankful for', hint: 'Anything that helped, even a little.', placeholder: 'A person, food, song, or moment.' },
+      { key: 'g2', label: 'A second thing', hint: 'Easy things to miss are okay.', placeholder: 'Maybe a friend, the weather, or a small win.' },
+      { key: 'g3', label: 'A third thing', hint: 'Simple is fine — food, rest, a kind text.', placeholder: 'Anything that made today a bit better.' },
+      { key: 'g_action', label: 'One small step for tomorrow', hint: 'One short sentence.', placeholder: 'Something easy you can really do.' },
+    ] },
+  { id: 'best_possible_self', title: 'Best future self', summary: 'Picture your life going really well. Write what you see, then turn it into small steps.', category: 'core', duration_approx: 'About 12 minutes',
+    fields: [
+      { key: 'bps_king_109', label: 'Step 1 — about 5 minutes', hint: 'Imagine you are 109 years old. Everything has gone as well as you hoped. Write what your life looks like.', placeholder: 'Keep writing. Do not stop to fix words.' },
+      { key: 'bps_king_time_machine', label: 'Step 2 — about 5 minutes', hint: 'Your 109-year-old self visits you today. What do they say?', placeholder: 'Let the words come. No editing.' },
+      { key: 'bps_king_actions', label: 'Step 3 — about 2 minutes', hint: 'Pick the top 3 things to remember every day.', placeholder: 'Bullet points are fine.' },
+    ] },
+  { id: 'cognitive_reframing', title: 'Cognitive reframing', summary: 'Slow down a worry. Look at it again. Find a kinder, true way to see it.', category: 'core', duration_approx: 'About 8 minutes',
+    fields: [
+      { key: 'cr_hot', label: 'The worry', hint: 'Messy is fine.', placeholder: 'Write the thought just like it sounds in your head.' },
+      { key: 'cr_evidence_for', label: 'Facts that support it', hint: 'Only real facts.', placeholder: 'What makes this thought feel true?' },
+      { key: 'cr_evidence_against', label: 'Facts that go against it', hint: 'Times it went okay, your skills, or help you have.', placeholder: 'What does not fully fit this thought?' },
+      { key: 'cr_balanced', label: 'A kinder, balanced view', hint: 'Try using "and" or "but" to hold both sides.', placeholder: 'Write a calmer version that still feels true.' },
+    ] },
+  { id: 'savoring', title: 'Savoring', summary: 'Pick one good moment. Stay with it for a minute. Notice it before it passes.', category: 'core', duration_approx: 'About 6 minutes',
+    fields: [
+      { key: 'sv_moment', label: 'One small good moment', hint: 'A sip, a text, a song, or light on the wall.', placeholder: 'What was it?' },
+      { key: 'sv_senses', label: 'What you noticed', hint: 'What did you see, hear, or feel?', placeholder: 'Colors, sounds, warmth — any small detail.' },
+      { key: 'sv_extend', label: 'How to make it last a little longer', hint: 'What could you stay with for 30 more seconds?', placeholder: 'One thing to slow down on next time.' },
+    ] },
+  { id: 'breathing_grounding', title: 'Breathing & grounding', summary: 'Calm your body first. Thoughts get easier after.', category: 'core', duration_approx: 'About 5 minutes', session_type: 'breathing', video_id: '-G89S77iJm8', phase_label: 'Inhale 4 · exhale 6', fields: [] },
+  { id: 'meditation', title: 'Meditation', summary: 'Sit. Breathe. Let thoughts pass like clouds.', category: 'core', duration_approx: 'About 10 minutes', session_type: 'meditation', video_id: 'x0nZ1ZLephQ', phase_label: 'Notice. Let go. Return.', fields: [] },
+];
+
 function useCatalog() {
-  const [items, setItems] = uS([]);
+  const [items, setItems] = uS(FALLBACK_CATALOG);
   uE(() => {
     apiFetch('/interventions/catalog').then(r => r.ok ? r.json() : null).then(d => {
-      if (d?.items) setItems(d.items);
+      if (d?.items?.length) setItems(d.items);
     }).catch(() => {});
   }, []);
   return items;
@@ -242,7 +274,7 @@ function computeStreak(records) {
 // ─── App ────────────────────────────────────────────────────────
 function App() {
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
-  const [authed, setAuthed] = uS(!!getToken());
+  const [authed, setAuthed] = uS(true); // demo mode: bypass auth so prototype runs without backend
   const [user, setUser] = uS(null);
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const [route, setRoute] = uS({ name: 'today' });
@@ -269,8 +301,8 @@ function App() {
     if (!authed) return;
     apiFetch('/auth/me').then(r => r.ok ? r.json() : null).then(u => {
       if (u) setUser(u);
-      else { clearToken(); setAuthed(false); }
-    });
+      // demo: don't clear auth if /auth/me fails (no backend)
+    }).catch(() => {});
   }, [authed]);
 
   // Load today's check-in into local state
@@ -378,7 +410,7 @@ function App() {
     return <AuthScreen onAuthed={() => setAuthed(true)} />;
   }
 
-  const showTabBar = ['today', 'timeline', 'practices', 'chat', 'me'].includes(route.name);
+  const showTabBar = ['today', 'treehole', 'timeline', 'forest', 'practices', 'chat', 'me'].includes(route.name);
 
   const screenProps = {
     state: renderedState,
@@ -400,9 +432,12 @@ function App() {
     case 'today':
       screen = <TodayScreen {...screenProps} />; break;
     case 'timeline':
+    case 'forest':
       screen = <TimelineScreen {...screenProps} />; break;
     case 'practices':
       screen = <PracticesScreen {...screenProps} />; break;
+    case 'treehole':
+      screen = <TreeHoleScreen {...screenProps} />; break;
     case 'chat':
       screen = <ChatScreen {...screenProps} />; break;
     case 'practiceDetail':
@@ -411,6 +446,8 @@ function App() {
       screen = <PracticeDoneScreen {...screenProps} id={route.id} />; break;
     case 'me':
       screen = <MeScreen {...screenProps} />; break;
+    case 'weeklyReport':
+      screen = <WeeklyReportScreen {...screenProps} />; break;
     case 'entryDetail':
       screen = <EntryDetailScreen {...screenProps} data={route.data} />; break;
     default:

@@ -204,7 +204,7 @@ function TodayScreen({ state, dispatch, onNav, tweaks, catalog, persistCheckin, 
       {/* Title row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 18, marginBottom: 10 }}>
         <h1 className="serif" style={{ margin: 0, fontSize: 26, fontWeight: 500, color: 'var(--ink)' }}>
-          how's today?
+          how's the weather inside?
         </h1>
         <div style={{ position: 'relative', width: 44, height: 44 }}>
           <Sticker type="sun" size={42} rotation={14} style={{ position: 'absolute', top: 0, right: -4 }}/>
@@ -261,7 +261,7 @@ function TodayScreen({ state, dispatch, onNav, tweaks, catalog, persistCheckin, 
         <div className="serif" style={{
           fontSize: 16, fontWeight: 500, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6,
         }}>
-          three good things
+          plant three seeds
           <span style={{ color: 'var(--accent-amber)' }}>✦</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -278,48 +278,82 @@ function TodayScreen({ state, dispatch, onNav, tweaks, catalog, persistCheckin, 
         </div>
       </NotebookCard>
 
-      {/* Daily practice chip — shows AI recommendation when mood is saved */}
-      {tweaks.showDailyChip && featured && dailyPracticeShown && (
-        <button
-          className="card-mount"
-          onClick={() => onNav({ name: 'practiceDetail', id: featured.id })}
-          style={{
+      {/* Daily practice chip — leaf note (top) + practice CTA (bottom) */}
+      {tweaks.showDailyChip && featured && dailyPracticeShown && (() => {
+        const leafIdx = _dailyLeafIdx();
+        const leafNote = LEAF_NOTES[leafIdx];
+        return (
+          <div className="card-mount" style={{
             animationDelay: '180ms',
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+            position: 'relative',
             background: 'var(--accent-mint)',
-            border: 'none',
-            width: '100%',
-            padding: '12px 16px',
-            borderRadius: 12,
-            cursor: 'pointer',
+            border: '1px solid rgba(74,27,12,0.08)',
+            borderRadius: 14,
+            padding: '16px 16px 14px',
             marginBottom: 18,
             color: 'var(--ink)',
-            gap: 4,
-          }}
-        >
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            width: '100%',
-            fontFamily: 'EB Garamond, serif', fontSize: 15, fontStyle: 'italic',
+            overflow: 'visible',
           }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Sticker type={STICKER_BY_ID[featured.id] || 'sun'} size={22} rotation={-6}/>
-              {recommendation?.id === featured.id ? "today's pick — " : "today's practice — "}
-              {featured.title.toLowerCase()}
-            </span>
-            <span style={{ fontFamily: 'Nunito', fontSize: 18, color: 'var(--ink-soft)' }}>→</span>
-          </div>
-          {featured._reason && (
-            <div style={{
-              fontFamily: 'Nunito', fontSize: 12, color: 'var(--ink-soft)',
-              lineHeight: 1.45, paddingLeft: 32, paddingRight: 18,
-              textAlign: 'left',
-            }}>
-              {featured._reason}
+            {/* small leaf tucked at the top-right corner */}
+            <div style={{ position: 'absolute', top: -10, right: 12, transform: 'rotate(18deg)' }}>
+              <svg width="44" height="44" viewBox="0 0 180 110" style={{ filter: 'drop-shadow(0 1px 2px rgba(74,27,12,0.10))' }}>
+                <path d="M 20 70 C 20 30, 70 12, 160 18 C 158 60, 130 95, 30 92 C 22 88, 20 80, 20 70 Z"
+                  fill="#B6C9A0" stroke="#4A1B0C" strokeWidth="2" strokeLinejoin="round"/>
+                <path d="M 22 78 Q 90 50, 158 22" stroke="#4A1B0C" strokeWidth="1.6" fill="none" strokeLinecap="round" opacity="0.7"/>
+              </svg>
             </div>
-          )}
-        </button>
-      )}
+            <div className="serif" style={{
+              fontStyle: 'italic', fontSize: 11, color: 'var(--ink-faded)',
+              letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8,
+            }}>today's small thing</div>
+            {/* Leaf note */}
+            <p className="serif" style={{
+              margin: '0 0 12px', fontSize: 16, fontStyle: 'italic',
+              lineHeight: 1.45, color: 'var(--ink)', paddingRight: 36,
+              textWrap: 'pretty',
+            }}>
+              {leafNote}
+            </p>
+            {/* Divider */}
+            <div style={{
+              borderTop: '1px dashed rgba(74,27,12,0.18)', margin: '10px -4px 12px',
+            }}/>
+            {/* Practice CTA */}
+            <button
+              onClick={() => onNav({ name: 'practiceDetail', id: featured.id })}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                background: 'transparent', border: 'none',
+                width: '100%', padding: 0, cursor: 'pointer', color: 'var(--ink)', gap: 4,
+              }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                width: '100%',
+                fontFamily: 'EB Garamond, serif', fontSize: 15, fontStyle: 'italic',
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Sticker type={STICKER_BY_ID[featured.id] || 'sun'} size={22} rotation={-6}/>
+                  {recommendation?.id === featured.id ? "an invitation — " : "a small practice — "}
+                  {featured.title.toLowerCase()}
+                </span>
+                <span style={{ fontFamily: 'Nunito', fontSize: 18, color: 'var(--ink-soft)' }}>→</span>
+              </div>
+              {featured._reason && (
+                <div style={{
+                  fontFamily: 'Nunito', fontSize: 12, color: 'var(--ink-soft)',
+                  lineHeight: 1.45, paddingLeft: 32, paddingRight: 18,
+                  textAlign: 'left',
+                }}>
+                  {featured._reason}
+                </div>
+              )}
+            </button>
+          </div>
+        );
+      })()}
+
+      {/* Small wins basket */}
+      <SmallWinsBasket stickerDensity={tweaks.stickerDensity} />
 
       {/* Habits section */}
       <HabitsSection todayRecord={todayRecord} stickerDensity={tweaks.stickerDensity} />
@@ -783,7 +817,7 @@ function HabitsSection({ stickerDensity }) {
         fontSize: 14, fontStyle: 'italic', color: 'var(--ink-soft)',
         marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <span>your habits</span>
+        <span>tiny intentions</span>
         <button
           onClick={() => setPicker(true)}
           style={{
@@ -798,7 +832,7 @@ function HabitsSection({ stickerDensity }) {
       {habits.length === 0 ? (
         <NotebookCard>
           <div className="serif" style={{ fontStyle: 'italic', color: 'var(--ink-faded)', textAlign: 'center', padding: '12px 8px' }}>
-            no habits yet — tap "+ add" to start a small daily.
+            nothing planted yet — tap "+ add" to start a tiny daily.
           </div>
         </NotebookCard>
       ) : (
@@ -942,7 +976,78 @@ function TimelineScreen({ timeline, onNav }) {
 
   return (
     <Page hasTabBar>
-      <WashiHeader>your timeline</WashiHeader>
+      <WashiHeader>your forest</WashiHeader>
+
+      {/* Forest growth card */}
+      <div className="card-mount" style={{
+        position: 'relative',
+        marginTop: 18, marginBottom: 22,
+        borderRadius: 14,
+        overflow: 'hidden',
+        background: 'linear-gradient(180deg, #C8DCB4 0%, #9BBE92 65%, #6A9377 100%)',
+        boxShadow: '0 2px 8px rgba(74,90,53,0.10)',
+      }}>
+        <svg viewBox="0 0 320 160" preserveAspectRatio="none" style={{ display: 'block', width: '100%', height: 140 }}>
+          {/* Distant hills */}
+          <path d="M 0 110 Q 80 80 160 100 T 320 92 L 320 160 L 0 160 Z" fill="#6A9377" opacity="0.6"/>
+          <path d="M 0 124 Q 80 100 180 120 T 320 110 L 320 160 L 0 160 Z" fill="#568366" opacity="0.7"/>
+          {/* Sun / moon */}
+          <circle cx="270" cy="32" r="14" fill="#FCE9B6" opacity="0.85"/>
+          {/* Trees — count scales with entry density */}
+          {(() => {
+            const entries = (timeline || []).filter(r => r.mood != null || r.practice).length;
+            const treeCount = Math.min(8, Math.max(2, Math.floor(entries / 2) + 2));
+            const trees = [];
+            for (let i = 0; i < treeCount; i++) {
+              const x = 30 + i * (260 / Math.max(1, treeCount - 1));
+              const baseY = 130 + (i % 2 ? 0 : -3);
+              const size = 0.85 + ((i * 13) % 7) * 0.04;
+              const isPine = i % 3 === 0;
+              if (isPine) {
+                trees.push(
+                  <g key={i} transform={`translate(${x} ${baseY}) scale(${size})`}>
+                    <rect x="-3" y="-6" width="6" height="12" fill="#5a3f24"/>
+                    <path d="M -16 -8 L 0 -38 L 16 -8 Z" fill="#4A7752"/>
+                    <path d="M -13 -22 L 0 -48 L 13 -22 Z" fill="#568366"/>
+                    <path d="M -10 -34 L 0 -56 L 10 -34 Z" fill="#6FA378"/>
+                  </g>
+                );
+              } else {
+                trees.push(
+                  <g key={i} transform={`translate(${x} ${baseY}) scale(${size})`}>
+                    <rect x="-2.5" y="-4" width="5" height="10" fill="#5a3f24"/>
+                    <circle cx="0" cy="-22" r="18" fill="#568366"/>
+                    <circle cx="-10" cy="-18" r="11" fill="#6FA378"/>
+                    <circle cx="9" cy="-19" r="10" fill="#7AAB7C"/>
+                    <circle cx="0" cy="-32" r="9" fill="#A8D49B"/>
+                  </g>
+                );
+              }
+            }
+            return trees;
+          })()}
+          {/* Foreground grass + flowers */}
+          <path d="M 0 138 Q 80 132 160 138 T 320 136 L 320 160 L 0 160 Z" fill="#4A7752"/>
+          <circle cx="44" cy="148" r="1.6" fill="#F5C7A1"/>
+          <circle cx="118" cy="151" r="1.4" fill="#FCE9B6"/>
+          <circle cx="232" cy="149" r="1.6" fill="#F5C7A1"/>
+        </svg>
+        <div style={{
+          padding: '10px 14px 14px',
+          background: 'rgba(255,253,247,0.92)',
+          borderTop: '1px solid rgba(74,90,53,0.10)',
+        }}>
+          <div className="serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--ink)' }}>
+            {(() => {
+              const entries = (timeline || []).filter(r => r.mood != null || r.practice).length;
+              if (entries === 0) return 'your forest is waiting for its first seed.';
+              if (entries < 4) return `${entries} small things have grown.`;
+              if (entries < 10) return `your forest is filling in — ${entries} entries so far.`;
+              return `${entries} entries. quite a forest you've grown.`;
+            })()}
+          </div>
+        </div>
+      </div>
 
       {/* Calendar header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 18, marginBottom: 10 }}>
@@ -972,8 +1077,7 @@ function TimelineScreen({ timeline, onNav }) {
       </div>
 
       {/* Calendar grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6, marginBottom: 22 }}>
-        {cells.map(c => {
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6, marginBottom: 22 }}>        {cells.map(c => {
           if (c.pad) return <div key={c.key} className="heat-dot" style={{ visibility: 'hidden' }}/>;
           const m = recordToMood(c.rec);
           const isToday = isCurrentMonth && c.day === TODAY.getDate();
@@ -997,6 +1101,14 @@ function TimelineScreen({ timeline, onNav }) {
           );
         })}
       </div>
+
+      {/* Month insights — stats, words, gentle note */}
+      <MonthInsights
+        timeline={timeline}
+        onNav={onNav}
+        monthStart={new Date(calYear, calMonth, 1)}
+        monthEnd={new Date(calYear, calMonth + 1, 0)}
+      />
 
       {/* Week-grouped journals */}
       {weeks.length === 0 && (
@@ -1138,6 +1250,33 @@ const STICKER_BY_ID = {
   kindness_self_other_wb2: 'heart',
 };
 
+// Category mapping — groups practices into themes for the catalog screen
+const CATEGORY_BY_ID = {
+  gratitude: 'gratitude',
+  gratitude_letter_wb2: 'gratitude',
+  three_good_things_wb2: 'gratitude',
+  pay_it_forward_wb2: 'gratitude',
+  kindness_self_other_wb2: 'gratitude',
+  savoring: 'savoring',
+  savoring_homework_wb2: 'savoring',
+  awe_walk_wb2: 'savoring',
+  nature_challenge_30x30_wb2: 'savoring',
+  earth_day_wb2: 'savoring',
+  best_future_self: 'looking forward',
+  hope_plan_wb2: 'looking forward',
+  best_possible_self_expanded_wb2: 'looking forward',
+  optimism_style_self_report_wb2: 'looking forward',
+  cognitive_reframing: 'reframing',
+  wellbeing_writing_analysis_wb2: 'reframing',
+  breathing_grounding: 'calming',
+  meditation: 'calming',
+  curiosity_practice_wb2: 'exploring',
+  flow_intervention_wb2: 'exploring',
+  strengths_use_wb2: 'exploring',
+  perma_baseline_authentic_happiness: 'exploring',
+};
+const CATEGORY_ORDER = ['gratitude', 'savoring', 'looking forward', 'reframing', 'calming', 'exploring'];
+
 function shortDesc(item) {
   if (!item) return '';
   const s = (item.summary || '').replace(/\n/g, ' ').trim();
@@ -1198,18 +1337,25 @@ function PracticesScreen({ catalog, onNav, recommendation }) {
         || catalog[0];
   }, [catalog, recommendation]);
 
-  // Build category groups with the catalog records
+  // Build category groups with the catalog records, grouped by CATEGORY_BY_ID
+  // in CATEGORY_ORDER. Anything without a known category falls through silently.
   const byId = useM(() => Object.fromEntries((catalog || []).map(p => [p.id, p])), [catalog]);
   const wellnessItems = useM(() =>
     MENTAL_WELLNESS_IDS.map(id => byId[id]).filter(Boolean),
   [byId]);
   const groups = useM(() => {
     if (!catalog?.length) return [];
-    return PRACTICE_GROUPS.map(g => ({
-      ...g,
-      items: g.ids.map(id => byId[id]).filter(Boolean),
-    })).filter(g => g.items.length > 0);
-  }, [catalog, byId]);
+    const buckets = {};
+    for (const p of catalog) {
+      if (MENTAL_WELLNESS_IDS.includes(p.id)) continue;
+      const cat = CATEGORY_BY_ID[p.id];
+      if (!cat) continue;
+      (buckets[cat] = buckets[cat] || []).push(p);
+    }
+    return CATEGORY_ORDER
+      .filter(cat => buckets[cat] && buckets[cat].length)
+      .map(cat => ({ id: cat, title: cat, items: buckets[cat] }));
+  }, [catalog]);
 
   if (!catalog?.length) {
     return (
@@ -1305,7 +1451,6 @@ function PracticesScreen({ catalog, onNav, recommendation }) {
           <div key={g.id} style={{ marginBottom: 18 }}>
             <div className="serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--ink-soft)', margin: '14px 0 8px' }}>
               {g.title}
-              {g.desc && <span style={{ color: 'var(--ink-faded)' }}> · {g.desc}</span>}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {items.map((p, i) => (
@@ -1744,53 +1889,142 @@ function PracticeDetailScreen({ id, catalog, onNav, reloadTimeline }) {
 // ─────────────────────────────────────────────────────────────
 function PracticeDoneScreen({ id, catalog, onNav }) {
   const practice = (catalog || []).find(p => p.id === id) || (catalog || [])[0];
+  // count practices done this week (incl. this one)
+  const weekCount = useM(() => {
+    try {
+      const log = JSON.parse(localStorage.getItem('moodpath_practice_log') || '[]');
+      const now = new Date();
+      const weekAgo = now.getTime() - 7 * 24 * 3600 * 1000;
+      return log.filter(x => x.at && x.at >= weekAgo).length;
+    } catch (e) { return 1; }
+  }, []);
+  // log this completion locally (lightweight, separate from server)
   useE(() => {
-    const t = setTimeout(() => onNav({ name: 'today' }), 4500);
-    return () => clearTimeout(t);
+    if (!practice) return;
+    try {
+      const log = JSON.parse(localStorage.getItem('moodpath_practice_log') || '[]');
+      log.push({ id: practice.id, at: Date.now() });
+      localStorage.setItem('moodpath_practice_log', JSON.stringify(log.slice(-200)));
+    } catch (e) {}
   }, []);
   const stickerType = STICKER_BY_ID[practice?.id] || 'sparkle';
+  const week = Math.max(1, weekCount);
+  // gentle line pool, picked deterministically from current minute so it varies each session
+  const lines = [
+    'you showed up today.',
+    'small care, well placed.',
+    'thank you for tending to yourself.',
+    'tucked into your notebook.',
+    'this one counts.',
+    'a soft hour, well spent.',
+  ];
+  const line = lines[new Date().getMinutes() % lines.length];
   return (
     <div className="paper-bg" style={{
       position: 'absolute', inset: 0, overflow: 'hidden',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: 32,
     }}>
-      <div style={{ position: 'absolute', top: 80, left: 30, opacity: 0.55 }}>
-        <Sticker type="leaf" size={32} rotation={-20}/>
-      </div>
-      <div style={{ position: 'absolute', top: 140, right: 36, opacity: 0.55 }}>
-        <Sticker type="sparkle" size={28} rotation={12}/>
-      </div>
-      <div style={{ position: 'absolute', bottom: 180, left: 50, opacity: 0.55 }}>
-        <Sticker type="flower" size={36} rotation={6}/>
+      {/* ambient drifting leaves/sparkles */}
+      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        {[
+          { t: 'leaf', size: 22, left: '12%', delay: '0s', rot: -18, dur: '7s' },
+          { t: 'sparkle', size: 16, left: '78%', delay: '1.4s', rot: 10, dur: '8s' },
+          { t: 'flower', size: 20, left: '28%', delay: '2.8s', rot: 6, dur: '9s' },
+          { t: 'leaf', size: 18, left: '64%', delay: '4.2s', rot: 22, dur: '7.5s' },
+          { t: 'sparkle', size: 14, left: '46%', delay: '5.6s', rot: -8, dur: '8.5s' },
+        ].map((p, i) => (
+          <div key={i} style={{
+            position: 'absolute', left: p.left, top: -40,
+            animation: `gentleFall ${p.dur} linear ${p.delay} infinite`,
+            opacity: 0.55,
+          }}>
+            <Sticker type={p.t} size={p.size} rotation={p.rot}/>
+          </div>
+        ))}
       </div>
 
-      <div className="sticker-peel" style={{ marginBottom: 30 }}>
+      {/* corner anchors (kept faint, lower opacity than before) */}
+      <div style={{ position: 'absolute', top: 80, left: 30, opacity: 0.35 }}>
+        <Sticker type="leaf" size={32} rotation={-20}/>
+      </div>
+      <div style={{ position: 'absolute', bottom: 200, right: 36, opacity: 0.35 }}>
+        <Sticker type="flower" size={32} rotation={8}/>
+      </div>
+
+      {/* hero sticker — gentle bobbing after peel */}
+      <div className="sticker-peel" style={{ marginBottom: 28, animation: 'stickerPeel 700ms ease-out, gentleBob 4s ease-in-out 700ms infinite' }}>
         <Sticker type={stickerType} size={120} rotation={-6}/>
       </div>
 
-      <h1 className="serif fade-up" style={{
-        margin: 0, fontSize: 32, fontWeight: 500, color: 'var(--ink)',
-        display: 'flex', alignItems: 'center', gap: 8,
+      <div className="serif fade-up" style={{
+        fontSize: 13, fontStyle: 'italic', color: 'var(--ink-faded)',
+        letterSpacing: 0.5, marginBottom: 4,
       }}>
-        saved <span style={{ color: 'var(--accent-amber)' }}>✦</span>
+        — tucked into your notebook —
+      </div>
+
+      <h1 className="serif fade-up" style={{
+        margin: 0, fontSize: 30, fontWeight: 500, color: 'var(--ink)',
+        textAlign: 'center', maxWidth: 300, lineHeight: 1.2,
+        animationDelay: '120ms',
+      }}>
+        {(practice?.title || 'practice').toLowerCase()}
       </h1>
 
       <p className="serif fade-up" style={{
-        marginTop: 14, fontSize: 17, fontStyle: 'italic', color: 'var(--ink-soft)',
+        marginTop: 14, marginBottom: 0,
+        fontSize: 16, fontStyle: 'italic', color: 'var(--ink-soft)',
         textAlign: 'center', maxWidth: 280,
-        animationDelay: '500ms',
+        animationDelay: '320ms',
       }}>
-        you showed up today.
+        {line}
       </p>
 
-      <button
-        className="btn btn-primary fade-up"
-        style={{ marginTop: 36, animationDelay: '700ms' }}
-        onClick={() => onNav({ name: 'today' })}
-      >
-        back to today
-      </button>
+      {/* weekly chip */}
+      <div className="fade-up" style={{
+        marginTop: 22, display: 'inline-flex', alignItems: 'center', gap: 8,
+        background: 'var(--paper-soft, rgba(225,235,210,0.5))',
+        border: '1px solid rgba(74,27,12,0.10)',
+        borderRadius: 999, padding: '6px 14px',
+        animationDelay: '480ms',
+      }}>
+        <Sticker type="sparkle" size={14} rotation={-8}/>
+        <span className="serif" style={{ fontSize: 13, color: 'var(--ink)' }}>
+          {week} {week === 1 ? 'practice' : 'practices'} this week
+        </span>
+      </div>
+
+      <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 30, width: '100%', maxWidth: 280, animationDelay: '640ms' }}>
+        <button
+          className="btn btn-primary"
+          onClick={() => onNav({ name: 'today' })}
+        >
+          back to today
+        </button>
+        <button
+          onClick={() => onNav({ name: 'timeline' })}
+          style={{
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            fontFamily: 'EB Garamond, serif', fontStyle: 'italic', fontSize: 14,
+            color: 'var(--ink-soft)', padding: '6px 8px',
+          }}>
+          see it in your timeline →
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes gentleFall {
+          0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+          10%  { opacity: 0.55; }
+          90%  { opacity: 0.45; }
+          100% { transform: translateY(105vh) rotate(220deg); opacity: 0; }
+        }
+        @keyframes gentleBob {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(-6px); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -1851,6 +2085,50 @@ function MeScreen({ state, timeline, user, onLogout, onNav }) {
         ))}
       </div>
 
+      {/* Weekly report — notebook spread */}
+      <button
+        onClick={() => onNav({ name: 'weeklyReport' })}
+        className="card-mount notebook-card"
+        style={{
+          position: 'relative',
+          width: '100%',
+          textAlign: 'left',
+          border: '1px solid rgba(74,27,12,0.1)',
+          background: 'var(--paper, #FCFAEF)',
+          padding: '16px 16px 16px 18px',
+          marginBottom: 22,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          overflow: 'visible',
+          fontFamily: 'Nunito, sans-serif',
+        }}>
+        {/* tape accent */}
+        <span style={{
+          position: 'absolute', top: -8, left: 22, width: 50, height: 14,
+          transform: 'rotate(-4deg)',
+          background: 'rgba(159, 225, 203, 0.65)',
+          border: '1px dashed rgba(74,27,12,0.18)',
+        }}/>
+        <div style={{ flex: '0 0 auto' }}>
+          <Sticker type="leaf" size={42} rotation={-12}/>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="serif" style={{ fontSize: 18, fontWeight: 500, color: 'var(--ink)' }}>
+            this week
+          </div>
+          <div className="serif" style={{
+            fontSize: 13, fontStyle: 'italic', color: 'var(--ink-soft)', marginTop: 2,
+          }}>
+            a small spread of how it went.
+          </div>
+        </div>
+        <span style={{ fontSize: 22, color: 'var(--ink-faded)', flex: '0 0 auto' }}>→</span>
+      </button>
+
+      {/* Monthly report folded into Forest tab. */}
+
       <div className="serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 8 }}>
         your journals
       </div>
@@ -1905,8 +2183,7 @@ function MeScreen({ state, timeline, user, onLogout, onNav }) {
         </NotebookCard>
       )}
 
-      {/* Trends section */}
-      <TrendsCard timeline={timeline} onNav={onNav} />
+      {/* Trends section — folded into Weekly Report (this week) above. */}
 
       <div className="serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 8 }}>
         settings
@@ -2365,9 +2642,971 @@ function EntryDetailScreen({ data, onNav }) {
   );
 }
 
+// ───────────────────────────────────────────────────────────
+// LEAF ENVELOPE — one small note per day, found on your path
+// ───────────────────────────────────────────────────────────
+const LEAF_KEY = 'moodpath_leaf_v1';
+const LEAF_NOTES = [
+  'one slow breath still counts.',
+  "you don't have to solve everything before resting.",
+  'name the feeling before trying to fix it.',
+  'you did more than you thought.',
+  'soft is also a way to keep going.',
+  'you are allowed to take up space.',
+  'the day does not have to be productive to matter.',
+  "it's okay to ask for help.",
+  'you can pause without giving up.',
+  "you survived yesterday — that's enough.",
+  'gentleness is also a kind of strength.',
+  'not everything needs an answer today.',
+  "you've already done enough for now.",
+  'rest is a kind of progress.',
+  'you are allowed to feel two things at once.',
+  'a quiet day is still a day lived.',
+  'some things just take time.',
+  "you don't have to earn rest.",
+  'being here counts.',
+  'small. slow. steady.',
+];
+
+function _todayKey() { return new Date().toISOString().slice(0,10); }
+
+function _dailyLeafIdx() {
+  const k = _todayKey();
+  let h = 0;
+  for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) | 0;
+  return Math.abs(h) % LEAF_NOTES.length;
+}
+
+function _loadLeaf() {
+  try { return JSON.parse(localStorage.getItem(LEAF_KEY) || '{}'); } catch (e) { return {}; }
+}
+function _saveLeaf(obj) { localStorage.setItem(LEAF_KEY, JSON.stringify(obj)); }
+
+function LeafEnvelope() {
+  const k = _todayKey();
+  const noteIdx = useM(() => _dailyLeafIdx(), []);
+  const note = LEAF_NOTES[noteIdx];
+  const [opened, setOpened] = useS(() => !!_loadLeaf()[k]);
+  const [animating, setAnimating] = useS(false);
+
+  function open() {
+    if (opened) return;
+    setAnimating(true);
+    setTimeout(() => {
+      setOpened(true);
+      const obj = _loadLeaf();
+      obj[k] = true;
+      _saveLeaf(obj);
+      setAnimating(false);
+    }, 520);
+  }
+
+  return (
+    <div className="card-mount" style={{ animationDelay: '220ms', marginTop: 4, marginBottom: 22 }}>
+      <div className="serif" style={{
+        fontStyle: 'italic', fontSize: 12, color: 'var(--ink-faded)',
+        letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6,
+      }}>leaf envelope</div>
+      <div className="serif" style={{
+        fontSize: 14, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 12,
+      }}>a small note found on your path.</div>
+
+      {!opened ? (
+        <button
+          onClick={open}
+          aria-label="open today's leaf"
+          style={{
+            position: 'relative',
+            width: '100%',
+            background: 'transparent',
+            border: 'none', cursor: 'pointer',
+            padding: '8px 0',
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+          }}
+        >
+          <svg width="180" height="110" viewBox="0 0 180 110" style={{
+            transition: 'transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transform: animating ? 'rotate(-12deg) translateY(-6px) scale(1.04)' : 'rotate(-4deg)',
+            filter: 'drop-shadow(0 2px 6px rgba(74,27,12,0.10))',
+          }}>
+            {/* leaf body */}
+            <path d="M 20 70 C 20 30, 70 12, 160 18 C 158 60, 130 95, 30 92 C 22 88, 20 80, 20 70 Z"
+              fill="#B6C9A0" stroke="#4A1B0C" strokeWidth="1.4" strokeLinejoin="round"/>
+            {/* center vein */}
+            <path d="M 22 78 Q 90 50, 158 22" stroke="#4A1B0C" strokeWidth="1.1" fill="none" strokeLinecap="round" opacity="0.7"/>
+            {/* side veins */}
+            <path d="M 50 70 Q 60 50, 72 38" stroke="#4A1B0C" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.45"/>
+            <path d="M 80 76 Q 90 55, 105 40" stroke="#4A1B0C" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.45"/>
+            <path d="M 115 80 Q 125 60, 140 44" stroke="#4A1B0C" strokeWidth="0.8" fill="none" strokeLinecap="round" opacity="0.45"/>
+            {/* fold line hint */}
+            <path d="M 35 60 Q 90 80, 150 50" stroke="#4A1B0C" strokeWidth="0.7" fill="none" strokeLinecap="round" opacity="0.35" strokeDasharray="2 3"/>
+            {/* tiny wax seal */}
+            <circle cx="90" cy="66" r="7" fill="#D9B89B" stroke="#4A1B0C" strokeWidth="1"/>
+            <path d="M 87 64 Q 90 68, 93 64" stroke="#4A1B0C" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
+          </svg>
+          <span className="serif" style={{
+            marginTop: 6,
+            fontSize: 15, fontStyle: 'italic',
+            color: 'var(--ink)',
+            borderBottom: '1px dashed var(--ink-faded)',
+            paddingBottom: 1,
+          }}>open today’s leaf</span>
+        </button>
+      ) : (
+        <div style={{
+          position: 'relative',
+          background: '#FBF5E7',
+          border: '1px solid rgba(74,27,12,0.10)',
+          borderRadius: 14,
+          padding: '22px 22px 22px 56px',
+          boxShadow: '0 1px 0 rgba(74,27,12,0.04)',
+          animation: 'cardMount 420ms ease-out',
+          minHeight: 88,
+          display: 'flex', alignItems: 'center',
+        }}>
+          {/* leaf tucked at left */}
+          <div style={{ position: 'absolute', left: -8, top: -10, transform: 'rotate(-22deg)' }}>
+            <svg width="56" height="56" viewBox="0 0 180 110">
+              <path d="M 20 70 C 20 30, 70 12, 160 18 C 158 60, 130 95, 30 92 C 22 88, 20 80, 20 70 Z"
+                fill="#B6C9A0" stroke="#4A1B0C" strokeWidth="2" strokeLinejoin="round"/>
+              <path d="M 22 78 Q 90 50, 158 22" stroke="#4A1B0C" strokeWidth="1.6" fill="none" strokeLinecap="round" opacity="0.7"/>
+            </svg>
+          </div>
+          <p className="serif" style={{
+            margin: 0, fontSize: 17, lineHeight: 1.5,
+            fontStyle: 'italic', color: 'var(--ink)',
+          }}>“{note}”</p>
+        </div>
+      )}
+    </div>
+  );
+}
+// ───────────────────────────────────────────────────────────
+const WINS_KEY = 'moodpath_wins_v1';
+const WIN_OBJECTS = ['seed', 'acorn', 'pebble', 'leaf', 'flower', 'star'];
+const WIN_PRESETS = [
+  'got out of bed',
+  'ate something',
+  'drank water',
+  'replied to a message',
+  'went outside',
+  'rested',
+  'asked for help',
+  'finished one small thing',
+  'survived a hard day',
+];
+const WIN_AFFIRMATIONS = [
+  'that counts.',
+  'you did more than you thought.',
+  'all of this is real.',
+  'gentle work.',
+  'every one matters.',
+];
+
+function loadWins() {
+  try {
+    const raw = localStorage.getItem(WINS_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch (e) {}
+  return {};
+}
+function saveWinsLocal(obj) { localStorage.setItem(WINS_KEY, JSON.stringify(obj)); }
+
+// Tiny SVG forest objects — small enough to scatter inside a basket
+function WinObject({ type, size = 22, rotation = 0, style = {} }) {
+  const common = { width: size, height: size, viewBox: '0 0 24 24', style: { transform: `rotate(${rotation}deg)`, ...style } };
+  switch (type) {
+    case 'seed':
+      return (
+        <svg {...common}>
+          <ellipse cx="12" cy="12" rx="4" ry="7" fill="#A8896B" stroke="#4A1B0C" strokeWidth="1.2"/>
+          <path d="M 12 6 Q 14 9 12 12" stroke="#4A1B0C" strokeWidth="0.9" fill="none"/>
+        </svg>
+      );
+    case 'acorn':
+      return (
+        <svg {...common}>
+          <path d="M 6 9 Q 12 4 18 9 L 17 12 L 7 12 Z" fill="#8B6B4A" stroke="#4A1B0C" strokeWidth="1.2" strokeLinejoin="round"/>
+          <path d="M 7 12 Q 12 22 17 12 Z" fill="#D4A574" stroke="#4A1B0C" strokeWidth="1.2" strokeLinejoin="round"/>
+          <line x1="12" y1="4" x2="12" y2="6" stroke="#4A1B0C" strokeWidth="1.2" strokeLinecap="round"/>
+        </svg>
+      );
+    case 'pebble':
+      return (
+        <svg {...common}>
+          <ellipse cx="12" cy="13" rx="8" ry="5" fill="#C9C2B4" stroke="#4A1B0C" strokeWidth="1.2"/>
+          <ellipse cx="10" cy="11" rx="2" ry="1" fill="#E0DACB"/>
+        </svg>
+      );
+    case 'leaf':
+      return <Sticker type="leaf" size={size} rotation={rotation} style={style}/>;
+    case 'flower':
+      return <Sticker type="flower" size={size} rotation={rotation} style={style}/>;
+    case 'star':
+      return <Sticker type="star" size={size} rotation={rotation} style={style}/>;
+    default:
+      return null;
+  }
+}
+
+// Basket SVG — woven, soft, holds the objects
+function Basket({ children, empty, shakeKey }) {
+  return (
+    <div
+      key={shakeKey || 0}
+      className={shakeKey ? 'basket-shake' : ''}
+      style={{ position: 'relative', width: '100%', height: 180, transformOrigin: '50% 60%' }}>
+      <svg viewBox="0 0 300 180" width="100%" height="180" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0 }}>
+        <defs>
+          <pattern id="weave" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(0)">
+            <path d="M 0 5 Q 2.5 2 5 5 Q 7.5 8 10 5" stroke="#9C7A55" strokeWidth="1" fill="none" opacity="0.55"/>
+            <path d="M 0 10 Q 2.5 7 5 10 Q 7.5 13 10 10" stroke="#9C7A55" strokeWidth="1" fill="none" opacity="0.55"/>
+          </pattern>
+        </defs>
+        {/* basket body — trapezoid */}
+        <path d="M 30 60 L 270 60 L 250 165 L 50 165 Z" fill="#D9C2A0" stroke="#4A1B0C" strokeWidth="1.4" strokeLinejoin="round"/>
+        <path d="M 30 60 L 270 60 L 250 165 L 50 165 Z" fill="url(#weave)"/>
+        {/* rim ellipse */}
+        <ellipse cx="150" cy="60" rx="120" ry="10" fill="#C9A87C" stroke="#4A1B0C" strokeWidth="1.4"/>
+        <ellipse cx="150" cy="58" rx="116" ry="7" fill="#7A5A3A" opacity="0.4"/>
+        {/* handle hint on top */}
+        <path d="M 80 58 Q 150 40 220 58" stroke="#9C7A55" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7"/>
+      </svg>
+      {/* objects layer */}
+      <div style={{
+        position: 'absolute', left: 50, right: 50, top: 70, bottom: 20,
+        display: 'flex', flexWrap: 'wrap', alignContent: 'flex-end', justifyContent: 'center',
+        gap: 4,
+      }}>
+        {empty ? (
+          <div className="serif" style={{
+            alignSelf: 'center',
+            fontStyle: 'italic', color: 'rgba(74,27,12,0.55)',
+            fontSize: 14, textAlign: 'center', paddingBottom: 24,
+          }}>
+            anything counts.<br/>even getting out of bed.
+          </div>
+        ) : children}
+      </div>
+    </div>
+  );
+}
+
+function SmallWinsBasket({ stickerDensity }) {
+  const [allWins, setAllWins] = useS(loadWins);
+  const [showSheet, setShowSheet] = useS(false);
+  const [customText, setCustomText] = useS('');
+  const [affirmIdx] = useS(() => Math.floor(Math.random() * WIN_AFFIRMATIONS.length));
+  const [shakeKey, setShakeKey] = useS(0);
+  const mountTimeRef = window.React.useRef(Date.now());
+
+  const todayKey = new Date().toISOString().slice(0,10);
+  const todayWins = allWins[todayKey] || [];
+
+  function persist(next) { setAllWins(next); saveWinsLocal(next); }
+
+  function addWins(texts) {
+    const arr = Array.isArray(texts) ? texts : [texts];
+    let next = todayWins.slice();
+    for (const text of arr) {
+      if (!text || !text.trim()) continue;
+      const type = WIN_OBJECTS[next.length % WIN_OBJECTS.length];
+      next.push({ id: Date.now() + Math.random(), text: text.trim(), type, addedAt: Date.now() });
+    }
+    persist({ ...allWins, [todayKey]: next });
+    setCustomText('');
+    // Shake the basket — staggered to roughly when the first item lands
+    setTimeout(() => setShakeKey(k => k + 1), 580);
+  }
+
+  function addWin(text) { addWins([text]); }
+
+  function removeWin(id) {
+    persist({ ...allWins, [todayKey]: todayWins.filter(w => w.id !== id) });
+  }
+
+  // scatter rotations — stable per win id
+  function rotFor(id) { return ((id * 73) % 40) - 20; }
+
+  return (
+    <div className="card-mount" style={{ animationDelay: '180ms', marginTop: 28, marginBottom: 22 }}>
+      <div className="serif" style={{
+        fontStyle: 'italic', fontSize: 12, color: 'var(--ink-faded)',
+        letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <span>small wins basket</span>
+      </div>
+      <div className="serif" style={{
+        fontSize: 17, fontWeight: 500, color: 'var(--ink)', marginBottom: 14,
+      }}>
+        what did you already do today?
+      </div>
+
+      <Basket empty={todayWins.length === 0} shakeKey={shakeKey}>
+        {todayWins.map((w, i) => {
+          const isNew = w.addedAt && (w.addedAt > mountTimeRef.current) && (Date.now() - w.addedAt < 2000);
+          const recentNewer = todayWins.filter(x => x.addedAt && x.addedAt > mountTimeRef.current && Date.now() - x.addedAt < 2000);
+          const newIdx = recentNewer.findIndex(x => x.id === w.id);
+          const rotStart = ((w.id * 17) % 80) - 40;
+          const rotEnd = rotFor(w.id);
+          return (
+            <button
+              key={w.id}
+              onClick={() => removeWin(w.id)}
+              title={w.text + ' — tap to remove'}
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                padding: 0, margin: 0,
+                '--drop-rot-start': rotStart + 'deg',
+                '--drop-rot-end': rotEnd + 'deg',
+                animation: isNew
+                  ? `winDrop 720ms cubic-bezier(.4,1.4,.55,1) ${newIdx * 110}ms backwards`
+                  : 'cardMount 360ms ease-out backwards',
+              }}
+            >
+              <WinObject type={w.type} size={26} rotation={rotEnd}/>
+            </button>
+          );
+        })}
+      </Basket>
+
+      {/* Status line */}
+      <div className="serif" style={{
+        textAlign: 'center', marginTop: 8, marginBottom: 14,
+        fontSize: 14, color: 'var(--ink-soft)', fontStyle: 'italic',
+      }}>
+        {todayWins.length === 0
+          ? <>add a small win below.</>
+          : <>you collected <b style={{ fontStyle: 'normal', fontWeight: 600, color: 'var(--ink)' }}>{todayWins.length}</b> small win{todayWins.length === 1 ? '' : 's'} today. {WIN_AFFIRMATIONS[affirmIdx]}</>
+        }
+      </div>
+
+      {/* List of wins (text) */}
+      {todayWins.length > 0 && (
+        <NotebookCard style={{ marginBottom: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {todayWins.map(w => (
+              <div key={w.id} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                borderBottom: '1px dashed var(--line-dashed)', paddingBottom: 8,
+              }}>
+                <WinObject type={w.type} size={20}/>
+                <span style={{ flex: 1, fontSize: 14 }}>{w.text}</span>
+                <button
+                  onClick={() => removeWin(w.id)}
+                  aria-label="remove"
+                  style={{
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    color: 'var(--ink-faded)', fontSize: 14, padding: 4,
+                  }}
+                >×</button>
+              </div>
+            ))}
+          </div>
+        </NotebookCard>
+      )}
+
+      {/* Add button */}
+      <button
+        onClick={() => setShowSheet(true)}
+        style={{
+          width: '100%',
+          background: 'var(--accent-mint)',
+          border: '1px dashed rgba(74,27,12,0.18)',
+          borderRadius: 14,
+          padding: '14px 18px',
+          cursor: 'pointer',
+          fontFamily: 'EB Garamond, serif',
+          fontStyle: 'italic',
+          fontSize: 16,
+          color: 'var(--ink)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        }}
+      >
+        <span style={{ fontSize: 18, lineHeight: 1 }}>+</span>
+        add a small win
+      </button>
+
+      {showSheet && (
+        <WinPickerSheet
+          presets={WIN_PRESETS.filter(p => !todayWins.some(w => w.text.toLowerCase() === p.toLowerCase()))}
+          customText={customText}
+          setCustomText={setCustomText}
+          onAdd={(items) => { addWins(items); setShowSheet(false); }}
+          onClose={() => setShowSheet(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function WinPickerSheet({ presets, customText, setCustomText, onAdd, onClose }) {
+  const [selected, setSelected] = useS(new Set());
+  function toggle(p) {
+    setSelected(s => {
+      const n = new Set(s);
+      if (n.has(p)) n.delete(p); else n.add(p);
+      return n;
+    });
+  }
+  function commit() {
+    const items = Array.from(selected);
+    if (customText.trim()) items.push(customText.trim());
+    if (items.length === 0) return;
+    onAdd(items);
+  }
+  const total = selected.size + (customText.trim() ? 1 : 0);
+  return (
+    <div
+      style={{
+        position: 'absolute', inset: 0, zIndex: 50,
+        background: 'rgba(74,27,12,0.18)',
+        display: 'flex', alignItems: 'flex-end',
+        animation: 'fadeUp 220ms ease-out',
+      }}
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          background: 'var(--paper)',
+          borderTopLeftRadius: 22, borderTopRightRadius: 22,
+          padding: '20px 22px 28px',
+          maxHeight: '78%',
+          overflowY: 'auto',
+          boxShadow: '0 -10px 30px rgba(74,27,12,0.18)',
+          animation: 'pageEnter 260ms ease-out',
+        }}
+      >
+        <div style={{ width: 40, height: 4, background: 'rgba(74,27,12,0.18)', borderRadius: 2, margin: '0 auto 16px' }}/>
+        <div className="serif" style={{ fontSize: 20, fontWeight: 500, marginBottom: 4 }}>
+          add a small win
+        </div>
+        <div className="serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--ink-soft)', marginBottom: 18 }}>
+          anything counts. especially on hard days.
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 18 }}>
+          {presets.map(p => {
+            const on = selected.has(p);
+            return (
+              <button
+                key={p}
+                onClick={() => toggle(p)}
+                style={{
+                  background: on ? 'var(--sage)' : 'var(--card-white)',
+                  border: on ? '1px solid var(--sage-deep)' : '1px solid rgba(74,27,12,0.10)',
+                  borderRadius: 999,
+                  padding: '8px 14px 8px 10px',
+                  cursor: 'pointer',
+                  fontFamily: 'Nunito, sans-serif',
+                  fontSize: 13,
+                  color: 'var(--ink)',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  transition: 'background 140ms',
+                }}
+              >
+                <span style={{
+                  width: 14, height: 14, borderRadius: 4,
+                  border: '1.2px solid var(--sage-deep)',
+                  background: on ? 'var(--sage-deep)' : 'transparent',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#FCFAEF', fontSize: 11, lineHeight: 1,
+                }}>{on ? '✓' : ''}</span>
+                {p}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="serif" style={{
+          fontStyle: 'italic', fontSize: 12,
+          color: 'var(--ink-faded)', letterSpacing: '0.06em',
+          textTransform: 'uppercase', marginBottom: 6,
+        }}>or write your own</div>
+
+        <input
+          type="text"
+          value={customText}
+          onChange={(e) => setCustomText(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') commit(); }}
+          placeholder="something small you did today…"
+          className="dashed-line"
+          style={{ fontSize: 16, marginBottom: 18 }}
+          autoFocus
+        />
+
+        <button
+          className="btn btn-primary"
+          onClick={commit}
+          disabled={total === 0}
+          style={{ width: '100%', opacity: total > 0 ? 1 : 0.5 }}
+        >
+          {total === 0 ? 'add to basket' : `add ${total} to basket`}
+        </button>
+        <button
+          onClick={onClose}
+          style={{
+            width: '100%', marginTop: 8,
+            background: 'transparent', border: 'none',
+            color: 'var(--ink-soft)', fontFamily: 'Nunito, sans-serif',
+            cursor: 'pointer', padding: '8px',
+          }}
+        >never mind</button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// TREE HOLE — whisper, keep / let go / reframe
+// ─────────────────────────────────────────────────────────────
+function TreeHoleScreen({ onNav }) {
+  const [text, setText] = useS('');
+  const [released, setReleased] = useS([]);
+  const [toast, setToast] = useS(null);
+  const [kept, setKept] = useS(() => {
+    try { return JSON.parse(localStorage.getItem('moodpath_treehole_keep') || '[]'); } catch (e) { return []; }
+  });
+
+  function logTo(key, item) {
+    try {
+      const log = JSON.parse(localStorage.getItem(key) || '[]');
+      log.push(item);
+      localStorage.setItem(key, JSON.stringify(log));
+    } catch (e) {}
+  }
+  function reloadKept() {
+    try { setKept(JSON.parse(localStorage.getItem('moodpath_treehole_keep') || '[]')); } catch (e) {}
+  }
+  function handleLetGo() {
+    const t = text.trim(); if (!t) return;
+    const id = Date.now() + Math.random();
+    setReleased(r => [...r, { id, text: t }]);
+    logTo('moodpath_treehole_letgo', { text: t, at: Date.now() });
+    setText('');
+    setTimeout(() => setReleased(r => r.filter(x => x.id !== id)), 3600);
+  }
+  function handleKeep() {
+    const t = text.trim(); if (!t) return;
+    logTo('moodpath_treehole_keep', { text: t, at: Date.now() });
+    setText('');
+    setToast('kept in your notebook.');
+    reloadKept();
+    setTimeout(() => setToast(null), 1800);
+  }
+  function releaseKept(at) {
+    // move from keep -> letgo log, animate it drifting away
+    try {
+      const keepLog = JSON.parse(localStorage.getItem('moodpath_treehole_keep') || '[]');
+      const item = keepLog.find(x => x.at === at);
+      if (!item) return;
+      const remaining = keepLog.filter(x => x.at !== at);
+      localStorage.setItem('moodpath_treehole_keep', JSON.stringify(remaining));
+      logTo('moodpath_treehole_letgo', { text: item.text, at: Date.now() });
+      const id = Date.now() + Math.random();
+      setReleased(r => [...r, { id, text: item.text }]);
+      setTimeout(() => setReleased(r => r.filter(x => x.id !== id)), 3600);
+      setKept(remaining);
+    } catch (e) {}
+  }
+  function handleReframe() {
+    const t = text.trim(); if (!t) return;
+    onNav({ name: 'practiceDetail', id: 'cognitive_reframing', prefill: t });
+  }
+
+  const canAct = text.trim().length > 0;
+
+  return (
+    <div className="paper-bg" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+      <div className="scroll-area page-enter" style={{
+        paddingTop: 56, paddingLeft: 22, paddingRight: 22, paddingBottom: 240,
+      }}>
+        <WashiHeader>tree hole</WashiHeader>
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: 18, marginBottom: 8 }}>
+          <h1 className="serif" style={{ margin: 0, fontSize: 24, fontWeight: 500, color: 'var(--ink)' }}>
+            whisper anything.
+          </h1>
+          <Sticker type="leaf" size={36} rotation={-12}/>
+        </div>
+        <p className="serif" style={{
+          margin: 0, marginBottom: 18,
+          fontSize: 15, fontStyle: 'italic', color: 'var(--ink-soft)',
+          lineHeight: 1.5,
+        }}>
+          a quiet place to set something down. nothing here is shared. keep it, let it go, or reframe it.
+        </p>
+
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          height: 280,
+          marginBottom: 14,
+        }}>
+          <svg viewBox="0 0 320 280" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: 14 }}>
+            <defs>
+              <radialGradient id="holeGrad" cx="48%" cy="46%" r="60%">
+                <stop offset="0%" stopColor="#05100a"/>
+                <stop offset="45%" stopColor="#0e1a12"/>
+                <stop offset="85%" stopColor="#1e2c22"/>
+                <stop offset="100%" stopColor="#2a3a2e"/>
+              </radialGradient>
+              <linearGradient id="leafLight" x1="0" y1="0" x2="0.3" y2="1">
+                <stop offset="0%" stopColor="#B6D4A2"/>
+                <stop offset="100%" stopColor="#7AAB7C"/>
+              </linearGradient>
+              <linearGradient id="leafMid" x1="0" y1="0" x2="0.3" y2="1">
+                <stop offset="0%" stopColor="#7DAE7F"/>
+                <stop offset="100%" stopColor="#4A7752"/>
+              </linearGradient>
+              <linearGradient id="leafDark" x1="0" y1="0" x2="0.3" y2="1">
+                <stop offset="0%" stopColor="#52805A"/>
+                <stop offset="100%" stopColor="#2D4F36"/>
+              </linearGradient>
+              <filter id="holeBlur" x="-10%" y="-10%" width="120%" height="120%">
+                <feGaussianBlur stdDeviation="2"/>
+              </filter>
+            </defs>
+            {/* Dark backdrop */}
+            <rect x="0" y="0" width="320" height="280" fill="#2D4F36"/>
+            {/* Far background — dense small shapes */}
+            {Array.from({length: 50}).map((_, i) => {
+              const x = ((i * 53) % 320) + Math.sin(i) * 8;
+              const y = ((i * 37) % 280) + Math.cos(i) * 6;
+              const r = 8 + (i % 5) * 3;
+              return <ellipse key={'b'+i} cx={x} cy={y} rx={r} ry={r*0.7} fill="#2D4F36" opacity={0.6 + (i % 3) * 0.1}/>;
+            })}
+
+            {/* HOLE — irregular organic blob, slightly blurred edge */}
+            <path d="M 160 42
+                     C 110 44, 76 70, 70 110
+                     C 60 145, 68 185, 92 215
+                     C 118 240, 165 246, 200 232
+                     C 235 218, 252 188, 250 150
+                     C 252 110, 232 72, 200 56
+                     C 188 48, 174 42, 160 42 Z"
+                  fill="url(#holeGrad)" filter="url(#holeBlur)"/>
+
+            {/* Mid layer leaves — pointed leaf shapes draped around the hole */}
+            <g>
+              {/* TOP cluster */}
+              {/* Leaf with vein — pointed almond shape */}
+              <g transform="translate(50 25) rotate(-15)">
+                <path d="M 0 0 Q 18 -18 40 -8 Q 45 12 28 22 Q 8 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 22 6 38 -2" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(85 8) rotate(25)">
+                <path d="M 0 0 Q 22 -16 42 -2 Q 44 18 24 24 Q 6 22 0 0 Z" fill="url(#leafLight)"/>
+                <path d="M 4 4 Q 24 8 38 0" stroke="#4A7752" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(135 4) rotate(-10)">
+                <path d="M 0 0 Q 20 -20 44 -8 Q 48 14 26 24 Q 4 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 26 6 42 -2" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(180 6) rotate(20)">
+                <path d="M 0 0 Q 18 -18 42 -6 Q 46 16 24 24 Q 4 22 0 0 Z" fill="url(#leafLight)"/>
+                <path d="M 4 4 Q 24 6 40 -2" stroke="#4A7752" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(228 12) rotate(-22)">
+                <path d="M 0 0 Q 20 -18 44 -8 Q 48 14 26 24 Q 4 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 26 6 42 -2" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(265 32) rotate(35)">
+                <path d="M 0 0 Q 18 -16 38 -4 Q 42 16 22 22 Q 4 20 0 0 Z" fill="url(#leafDark)"/>
+                <path d="M 4 4 Q 22 6 36 0" stroke="#234029" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+
+              {/* LEFT side — fern-like fronds */}
+              <g transform="translate(14 70) rotate(-50)">
+                <path d="M 0 0 Q 24 -16 48 -4 Q 52 18 28 26 Q 4 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 26 8 44 -2" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(8 120) rotate(-65)">
+                <path d="M 0 0 Q 26 -16 50 -2 Q 54 22 28 28 Q 4 24 0 0 Z" fill="url(#leafDark)"/>
+                <path d="M 4 4 Q 26 8 46 0" stroke="#234029" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(6 170) rotate(-80)">
+                <path d="M 0 0 Q 24 -16 50 -4 Q 54 20 30 26 Q 6 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 26 8 46 -2" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(12 220) rotate(-95)">
+                <path d="M 0 0 Q 22 -14 46 -2 Q 50 20 26 26 Q 6 22 0 0 Z" fill="url(#leafLight)"/>
+                <path d="M 4 4 Q 24 8 42 0" stroke="#4A7752" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+
+              {/* RIGHT side */}
+              <g transform="translate(306 70) rotate(228)">
+                <path d="M 0 0 Q 22 -16 46 -4 Q 50 18 28 24 Q 6 22 0 0 Z" fill="url(#leafLight)"/>
+                <path d="M 4 4 Q 24 8 42 -2" stroke="#4A7752" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(312 120) rotate(245)">
+                <path d="M 0 0 Q 24 -16 50 -2 Q 54 22 28 28 Q 4 24 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 26 8 46 0" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(314 170) rotate(260)">
+                <path d="M 0 0 Q 24 -16 50 -4 Q 54 20 30 26 Q 6 22 0 0 Z" fill="url(#leafDark)"/>
+                <path d="M 4 4 Q 26 8 46 -2" stroke="#234029" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(310 220) rotate(275)">
+                <path d="M 0 0 Q 22 -14 46 -2 Q 50 20 26 26 Q 6 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 24 8 42 0" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+
+              {/* BOTTOM — undergrowth, ferns spreading inward */}
+              <g transform="translate(36 270) rotate(-115)">
+                <path d="M 0 0 Q 24 -16 50 -4 Q 54 20 30 26 Q 6 22 0 0 Z" fill="url(#leafDark)"/>
+                <path d="M 4 4 Q 26 8 46 -2" stroke="#234029" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(80 274) rotate(-130)">
+                <path d="M 0 0 Q 24 -16 50 -4 Q 54 22 28 28 Q 4 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 26 8 46 -2" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(130 280) rotate(-150)">
+                <path d="M 0 0 Q 22 -14 46 -2 Q 50 20 26 26 Q 6 22 0 0 Z" fill="url(#leafLight)"/>
+                <path d="M 4 4 Q 24 8 42 0" stroke="#4A7752" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(186 282) rotate(-170)">
+                <path d="M 0 0 Q 22 -14 46 -2 Q 50 20 26 26 Q 6 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 24 8 42 0" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(240 278) rotate(165)">
+                <path d="M 0 0 Q 24 -16 50 -4 Q 54 22 28 28 Q 4 22 0 0 Z" fill="url(#leafDark)"/>
+                <path d="M 4 4 Q 26 8 46 -2" stroke="#234029" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+              <g transform="translate(286 268) rotate(145)">
+                <path d="M 0 0 Q 22 -14 46 -2 Q 50 20 26 26 Q 6 22 0 0 Z" fill="url(#leafMid)"/>
+                <path d="M 4 4 Q 24 8 42 0" stroke="#3a5e42" strokeWidth="0.8" fill="none" opacity="0.6"/>
+              </g>
+
+              {/* Inner ring — small leaves hugging the hole edge */}
+              <g transform="translate(118 56) rotate(-30)">
+                <path d="M 0 0 Q 12 -10 26 -2 Q 28 10 14 14 Q 2 12 0 0 Z" fill="url(#leafLight)"/>
+              </g>
+              <g transform="translate(162 42) rotate(8)">
+                <path d="M 0 0 Q 14 -12 28 -2 Q 30 12 14 16 Q 2 14 0 0 Z" fill="url(#leafMid)"/>
+              </g>
+              <g transform="translate(204 50) rotate(28)">
+                <path d="M 0 0 Q 14 -12 28 -2 Q 30 12 14 16 Q 2 14 0 0 Z" fill="url(#leafLight)"/>
+              </g>
+              <g transform="translate(56 132) rotate(-72)">
+                <path d="M 0 0 Q 12 -10 24 -2 Q 26 12 12 14 Q 2 12 0 0 Z" fill="url(#leafMid)"/>
+              </g>
+              <g transform="translate(58 190) rotate(-100)">
+                <path d="M 0 0 Q 12 -10 24 -2 Q 26 12 12 14 Q 2 12 0 0 Z" fill="url(#leafLight)"/>
+              </g>
+              <g transform="translate(264 138) rotate(252)">
+                <path d="M 0 0 Q 12 -10 24 -2 Q 26 12 12 14 Q 2 12 0 0 Z" fill="url(#leafMid)"/>
+              </g>
+              <g transform="translate(262 196) rotate(282)">
+                <path d="M 0 0 Q 12 -10 24 -2 Q 26 12 12 14 Q 2 12 0 0 Z" fill="url(#leafLight)"/>
+              </g>
+              <g transform="translate(120 234) rotate(-160)">
+                <path d="M 0 0 Q 12 -10 24 -2 Q 26 12 12 14 Q 2 12 0 0 Z" fill="url(#leafMid)"/>
+              </g>
+              <g transform="translate(200 238) rotate(160)">
+                <path d="M 0 0 Q 12 -10 24 -2 Q 26 12 12 14 Q 2 12 0 0 Z" fill="url(#leafLight)"/>
+              </g>
+            </g>
+
+            {/* Hanging vines */}
+            <g stroke="#3a5e42" strokeWidth="1" fill="none" opacity="0.7">
+              <path d="M 110 22 Q 108 50 116 78"/>
+              <path d="M 196 14 Q 198 42 192 70"/>
+            </g>
+            <ellipse cx="116" cy="80" rx="2.5" ry="5" fill="#B6D4A2" transform="rotate(10 116 80)"/>
+            <ellipse cx="192" cy="72" rx="2.5" ry="5" fill="#B6D4A2" transform="rotate(-8 192 72)"/>
+
+            {/* Specks of light / dust */}
+            <circle cx="148" cy="98" r="1" fill="#fff" opacity="0.4"/>
+            <circle cx="190" cy="124" r="0.8" fill="#fff" opacity="0.3"/>
+            <circle cx="172" cy="178" r="0.9" fill="#fff" opacity="0.35"/>
+          </svg>
+          {/* Textarea positioned over the hole */}
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="whisper into the hole…"
+            style={{
+              position: 'absolute',
+              top: '24%', left: '24%', width: '52%', height: '56%',
+              background: 'transparent', border: 'none', outline: 'none', resize: 'none',
+              fontFamily: 'EB Garamond, serif', fontStyle: 'italic',
+              fontSize: 15, lineHeight: '22px',
+              color: '#e8dfc8',
+              textAlign: 'center',
+              caretColor: '#e8dfc8',
+              padding: 0,
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          <button onClick={handleKeep} disabled={!canAct}
+            style={{
+              border: '1px solid rgba(74,27,12,0.12)', background: 'var(--card-white)',
+              borderRadius: 14, padding: '14px 8px', cursor: canAct ? 'pointer' : 'not-allowed',
+              opacity: canAct ? 1 : 0.5,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              fontFamily: 'Nunito, sans-serif', fontSize: 13, color: 'var(--ink)',
+            }}>
+            <Sticker type="heart" size={24} rotation={0}/>
+            <span>keep</span>
+            <span className="serif" style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--ink-soft)' }}>save it</span>
+          </button>
+          <button onClick={handleLetGo} disabled={!canAct}
+            style={{
+              border: '1px solid rgba(74,27,12,0.12)', background: 'var(--sage-soft, #E1EBD2)',
+              borderRadius: 14, padding: '14px 8px', cursor: canAct ? 'pointer' : 'not-allowed',
+              opacity: canAct ? 1 : 0.5,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              fontFamily: 'Nunito, sans-serif', fontSize: 13, color: 'var(--ink)',
+            }}>
+            <Sticker type="leaf" size={24} rotation={-20}/>
+            <span>let go</span>
+            <span className="serif" style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--ink-soft)' }}>release</span>
+          </button>
+          <button onClick={handleReframe} disabled={!canAct}
+            style={{
+              border: '1px solid rgba(74,27,12,0.12)', background: 'var(--accent-mint, #E1F5EE)',
+              borderRadius: 14, padding: '14px 8px', cursor: canAct ? 'pointer' : 'not-allowed',
+              opacity: canAct ? 1 : 0.5,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              fontFamily: 'Nunito, sans-serif', fontSize: 13, color: 'var(--ink)',
+            }}>
+            <Sticker type="sparkle" size={24} rotation={8}/>
+            <span>reframe</span>
+            <span className="serif" style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--ink-soft)' }}>look again</span>
+          </button>
+        </div>
+
+        {kept.length > 0 && (
+          <div style={{ marginTop: 36 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h2 className="serif" style={{ margin: 0, fontSize: 17, fontWeight: 500, color: 'var(--ink)' }}>
+                in your notebook
+              </h2>
+              <span className="serif" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--ink-faded)' }}>
+                {kept.length} {kept.length === 1 ? 'paper' : 'papers'} kept
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[...kept].reverse().slice(0, 6).map((item, i) => {
+                const rot = (i % 2 === 0 ? -1 : 1) * (0.4 + (i % 3) * 0.6);
+                const dateStr = (() => {
+                  try {
+                    const d = new Date(item.at);
+                    const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+                    return months[d.getMonth()] + ' ' + d.getDate();
+                  } catch (e) { return ''; }
+                })();
+                return (
+                  <div key={item.at} style={{
+                    position: 'relative',
+                    background: 'var(--card-white, #FCFAEF)',
+                    border: '1px solid rgba(74,27,12,0.10)',
+                    borderRadius: 6,
+                    padding: '14px 16px 12px',
+                    transform: `rotate(${rot}deg)`,
+                    boxShadow: '0 1px 0 rgba(74,27,12,0.05), 0 2px 8px rgba(74,27,12,0.06)',
+                    animation: `paperIn 360ms ease-out ${i * 40}ms both`,
+                  }}>
+                    {/* tape */}
+                    <div style={{
+                      position: 'absolute', top: -7, left: '50%', transform: 'translateX(-50%) rotate(-2deg)',
+                      width: 44, height: 14,
+                      background: 'rgba(225,235,210,0.7)',
+                      borderLeft: '1px dashed rgba(74,27,12,0.08)',
+                      borderRight: '1px dashed rgba(74,27,12,0.08)',
+                    }}></div>
+                    <p className="serif" style={{
+                      margin: 0, marginBottom: 8,
+                      fontSize: 14, lineHeight: 1.5,
+                      color: 'var(--ink)',
+                      fontStyle: 'italic',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                    }}>{item.text}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                      <span className="serif" style={{ fontSize: 11, color: 'var(--ink-faded)' }}>
+                        kept {dateStr}
+                      </span>
+                      <button onClick={() => releaseKept(item.at)} style={{
+                        background: 'transparent', border: 'none', cursor: 'pointer',
+                        fontFamily: 'EB Garamond, serif', fontSize: 12, fontStyle: 'italic',
+                        color: 'var(--ink-soft)', padding: '4px 6px', display: 'inline-flex', alignItems: 'center', gap: 4,
+                      }}>
+                        <Sticker type="leaf" size={14} rotation={-20}/>
+                        let go
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {kept.length > 6 && (
+              <div className="serif" style={{ textAlign: 'center', marginTop: 14, fontSize: 12, fontStyle: 'italic', color: 'var(--ink-faded)' }}>
+                {kept.length - 6} more papers tucked away.
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        {released.map((r, i) => (
+          <div key={r.id} style={{
+            position: 'absolute', top: 280,
+            left: `${20 + (i * 23) % 60}%`,
+            animation: 'leafDrift 3500ms ease-in forwards',
+            maxWidth: 220,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Sticker type="leaf" size={28} rotation={-20}/>
+              <span className="serif" style={{
+                fontStyle: 'italic', fontSize: 13, color: 'var(--ink-soft)',
+                background: 'rgba(252,250,239,0.85)', padding: '4px 8px', borderRadius: 8,
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                maxWidth: 180,
+              }}>{r.text}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {toast && (
+        <div style={{
+          position: 'absolute', left: '50%', bottom: 100, transform: 'translateX(-50%)',
+          background: 'var(--ink)', color: 'var(--paper)',
+          borderRadius: 999, padding: '10px 18px',
+          fontFamily: 'EB Garamond, serif', fontStyle: 'italic', fontSize: 14,
+          animation: 'fadeUp 220ms ease-out',
+          boxShadow: '0 4px 16px rgba(74,27,12,0.18)',
+        }}>{toast}</div>
+      )}
+
+      <style>{`
+        @keyframes leafDrift {
+          0%   { opacity: 0; transform: translateY(0) translateX(0) rotate(0deg); }
+          15%  { opacity: 1; }
+          100% { opacity: 0; transform: translateY(360px) translateX(40px) rotate(80deg); }
+        }
+        @keyframes paperIn {
+          from { opacity: 0; transform: translateY(8px) rotate(var(--r, 0deg)); }
+          to   { opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 Object.assign(window, {
   TodayScreen, TimelineScreen, PracticesScreen,
   PracticeDetailScreen, PracticeDoneScreen, MeScreen, EntryDetailScreen,
-  ChatScreen,
+  ChatScreen, SmallWinsBasket, LeafEnvelope, TreeHoleScreen,
   TODAY,
 });

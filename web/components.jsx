@@ -354,25 +354,29 @@ function StreakChip({ count, total = 7, label }) {
 // Tab bar
 // ─────────────────────────────────────────────────────────────
 function TabIcon({ name, active }) {
-  const stroke = active ? '#4A1B0C' : '#B4B2A9';
+  const stroke = active ? '#3D2A18' : '#B3A88F';
   switch (name) {
     case 'today':
       return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <rect x="4" y="5" width="16" height="15" rx="2" stroke={stroke} strokeWidth="1.6"/>
-          <line x1="4" y1="9" x2="20" y2="9" stroke={stroke} strokeWidth="1.6"/>
-          <line x1="9" y1="3" x2="9" y2="6" stroke={stroke} strokeWidth="1.6" strokeLinecap="round"/>
-          <line x1="15" y1="3" x2="15" y2="6" stroke={stroke} strokeWidth="1.6" strokeLinecap="round"/>
+          <circle cx="12" cy="12" r="4" stroke={stroke} strokeWidth="1.6"/>
+          <g stroke={stroke} strokeWidth="1.6" strokeLinecap="round">
+            <line x1="12" y1="3" x2="12" y2="5"/>
+            <line x1="12" y1="19" x2="12" y2="21"/>
+            <line x1="3" y1="12" x2="5" y2="12"/>
+            <line x1="19" y1="12" x2="21" y2="12"/>
+            <line x1="5.5" y1="5.5" x2="7" y2="7"/>
+            <line x1="17" y1="17" x2="18.5" y2="18.5"/>
+            <line x1="5.5" y1="18.5" x2="7" y2="17"/>
+            <line x1="17" y1="7" x2="18.5" y2="5.5"/>
+          </g>
         </svg>
       );
-    case 'timeline':
+    case 'treehole':
       return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <circle cx="6" cy="7" r="1.6" fill={stroke}/>
-          <circle cx="6" cy="17" r="1.6" fill={stroke}/>
-          <line x1="10" y1="7" x2="20" y2="7" stroke={stroke} strokeWidth="1.6" strokeLinecap="round"/>
-          <line x1="10" y1="12" x2="17" y2="12" stroke={stroke} strokeWidth="1.6" strokeLinecap="round"/>
-          <line x1="10" y1="17" x2="20" y2="17" stroke={stroke} strokeWidth="1.6" strokeLinecap="round"/>
+          <path d="M6 21 L 6 12 C 6 8, 9 5, 12 5 C 15 5, 18 8, 18 12 L 18 21" stroke={stroke} strokeWidth="1.6" strokeLinecap="round"/>
+          <ellipse cx="12" cy="14" rx="2.5" ry="3.5" stroke={stroke} strokeWidth="1.6" fill={active ? stroke : 'none'} fillOpacity="0.15"/>
         </svg>
       );
     case 'practices':
@@ -383,14 +387,15 @@ function TabIcon({ name, active }) {
           <line x1="9" y1="13" x2="14" y2="13" stroke={stroke} strokeWidth="1.6" strokeLinecap="round"/>
         </svg>
       );
-    case 'chat':
+    case 'forest':
       return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M4 7 C 4 5.5, 5.5 4, 7 4 L 17 4 C 18.5 4, 20 5.5, 20 7 L 20 14 C 20 15.5, 18.5 17, 17 17 L 11 17 L 7 21 L 7 17 C 5.5 17, 4 15.5, 4 14 Z"
-                stroke={stroke} strokeWidth="1.6" strokeLinejoin="round" fill="none"/>
-          <circle cx="9" cy="11" r="1.1" fill={stroke}/>
-          <circle cx="12" cy="11" r="1.1" fill={stroke}/>
-          <circle cx="15" cy="11" r="1.1" fill={stroke}/>
+          {/* left tree — upright pine */}
+          <path d="M 4 17 L 12 17 L 8 10 Z M 5 12 L 11 12 L 8 5 Z" stroke={stroke} strokeWidth="1.3" strokeLinejoin="round" fill="none"/>
+          <line x1="8" y1="17" x2="8" y2="20" stroke={stroke} strokeWidth="1.3" strokeLinecap="round"/>
+          {/* right tree */}
+          <path d="M 13 18 L 21 18 L 17 11 Z M 14 13 L 20 13 L 17 6 Z" stroke={stroke} strokeWidth="1.3" strokeLinejoin="round" fill="none"/>
+          <line x1="17" y1="18" x2="17" y2="20.5" stroke={stroke} strokeWidth="1.3" strokeLinecap="round"/>
         </svg>
       );
     case 'me':
@@ -406,9 +411,9 @@ function TabIcon({ name, active }) {
 function TabBar({ active, onChange }) {
   const tabs = [
     { id: 'today', label: 'today' },
-    { id: 'timeline', label: 'timeline' },
+    { id: 'treehole', label: 'tree hole' },
     { id: 'practices', label: 'practices' },
-    { id: 'chat', label: 'chat' },
+    { id: 'forest', label: 'forest' },
     { id: 'me', label: 'me' },
   ];
   return (
